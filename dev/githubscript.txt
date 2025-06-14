@@ -1,0 +1,46 @@
+# Rangkuman Perintah Git dan Fungsinya
+
+1. Membuat branch baru dan pindah ke branch tersebut:
+   git checkout -b nama-branch-baru
+   
+2. Push branch baru ke GitHub:
+   git push origin nama-branch-baru
+
+3. Melihat daftar branch lokal:
+   git branch
+
+   Melihat semua branch (lokal & remote):
+   git branch -a
+
+4. Menghapus branch lokal:
+   git branch -d nama-branch
+   # Pakai -D jika ingin force delete
+   git branch -D nama-branch
+
+   Menghapus branch di remote:
+   git push origin --delete nama-branch
+
+5. Merge branch main ke branch fitur (misal: fitur/login):
+   git checkout fitur/login
+   git fetch origin
+   git merge origin/main
+
+6. Merge branch fitur ke main (misal: fitur/visi-misi):
+   git checkout main
+   git pull origin main
+   git merge fitur/visi-misi
+   # Jika ada konflik, selesaikan lalu commit
+   git push origin main
+
+7. Push perubahan ke branch main:
+   git push origin main
+
+# Penjelasan Fungsi
+- checkout: pindah ke branch tertentu
+- branch: membuat/menampilkan/menghapus branch
+- push: mengirim perubahan ke remote (GitHub)
+- pull: mengambil update terbaru dari remote
+- merge: menggabungkan branch
+- fetch: mengambil update branch dari remote tanpa merge otomatis
+- commit: menyimpan perubahan lokal
+- add: menambahkan file ke staging sebelum commit

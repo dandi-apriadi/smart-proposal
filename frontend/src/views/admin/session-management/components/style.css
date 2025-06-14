@@ -1,0 +1,281 @@
+@tailwind utilities;
+
+@layer utilities {
+  .bg-transparent {
+    background-color: transparent;
+  }
+}
+
+.react-calendar {
+  @apply w-full border-0 font-sans overflow-hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.04), 0 6px 10px rgba(0,0,0,0.02);
+  border-radius: 16px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Flowing navigation bar with gradient */
+.react-calendar__navigation {
+  @apply mb-0 flex h-16 items-center justify-between px-6 relative;
+  background: linear-gradient(135deg, #f0f9ff 0%, #f8fafc 100%);
+  border-radius: 16px 16px 0 0;
+  border-bottom: 1px solid rgba(229, 231, 235, 0.3);
+}
+
+.dark .react-calendar__navigation {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(15, 23, 42, 0.8) 100%);
+  border-bottom: 1px solid rgba(30, 41, 59, 0.3);
+}
+
+.react-calendar__navigation button {
+  @apply min-w-[3rem] h-10 bg-transparent rounded-full transition-all;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  @apply hover:bg-white dark:hover:bg-navy-700/80 text-gray-700 dark:text-gray-300;
+  @apply border-0 flex items-center justify-center;
+  box-shadow: 0 0 0 0 rgba(0,0,0,0);
+}
+
+.react-calendar__navigation button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+}
+
+.react-calendar__navigation button:active {
+  transform: translateY(0);
+  box-shadow: 0 0 0 0 rgba(0,0,0,0);
+}
+
+.react-calendar__navigation button:disabled {
+  @apply opacity-30 cursor-not-allowed hover:bg-transparent hover:shadow-none;
+  transform: none;
+}
+
+.react-calendar__navigation__label {
+  @apply font-bold text-base text-navy-700 dark:text-white flex-grow text-center;
+  letter-spacing: -0.01em;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Animated month label */
+.react-calendar__navigation__label:after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 40%;
+  right: 40%;
+  height: 2px;
+  @apply bg-blue-500 dark:bg-blue-400;
+  transform: scaleX(0);
+  transition: transform 0.3s ease, left 0.3s ease, right 0.3s ease;
+}
+
+.react-calendar__navigation__label:hover:after {
+  transform: scaleX(1);
+  left: 30%;
+  right: 30%;
+}
+
+/* Curved weekday headers */
+.react-calendar__month-view__weekdays {
+  @apply mb-0 text-xs font-medium;
+  background: linear-gradient(to right, rgba(248,250,252,0.4), rgba(248,250,252,0.7), rgba(248,250,252,0.4));
+  padding: 12px 8px 6px;
+}
+
+.dark .react-calendar__month-view__weekdays {
+  background: linear-gradient(to right, rgba(15,23,42,0.6), rgba(15,23,42,0.8), rgba(15,23,42,0.6));
+}
+
+.react-calendar__month-view__weekdays__weekday {
+  @apply text-gray-500 dark:text-gray-400 py-2 rounded-lg;
+  margin: 0 2px;
+}
+
+.react-calendar__month-view__weekdays__weekday abbr {
+  @apply no-underline cursor-default font-medium;
+  display: inline-block;
+  position: relative;
+  padding-bottom: 5px;
+}
+
+/* Flowing calendar grid */
+.react-calendar__viewContainer {
+  @apply bg-white dark:bg-navy-800 overflow-hidden;
+  background-image: 
+    radial-gradient(circle at top right, rgba(99, 102, 241, 0.03), transparent 200px),
+    radial-gradient(circle at bottom left, rgba(14, 165, 233, 0.03), transparent 200px);
+}
+
+.dark .react-calendar__viewContainer {
+  background-image: 
+    radial-gradient(circle at top right, rgba(99, 102, 241, 0.05), transparent 200px),
+    radial-gradient(circle at bottom left, rgba(14, 165, 233, 0.05), transparent 200px);
+}
+
+.react-calendar__month-view__days {
+  @apply p-2 gap-1;
+  display: grid !important;
+  grid-template-rows: repeat(6, 1fr);
+  grid-template-columns: repeat(7, 1fr);
+}
+
+/* Organic day tiles */
+.react-calendar__tile {
+  @apply relative p-1 bg-transparent text-center;
+  aspect-ratio: 1/1;
+  border-radius: 12px;
+  margin: 2px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 2px solid transparent;
+  overflow: visible;
+}
+
+.react-calendar__tile:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  @apply bg-blue-50/70 dark:bg-navy-700/70;
+}
+
+.react-calendar__tile > abbr {
+  @apply absolute text-sm font-normal text-gray-700 dark:text-gray-300;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  transition: all 0.25s ease;
+}
+
+.react-calendar__month-view__days__day {
+  position: relative;
+  overflow: visible;
+}
+
+/* Breathing animation for today's date */
+@keyframes pulse-border {
+  0% { border-color: rgba(59, 130, 246, 0.3); }
+  50% { border-color: rgba(59, 130, 246, 0.6); }
+  100% { border-color: rgba(59, 130, 246, 0.3); }
+}
+
+/* Today's date - organic indicator */
+.react-calendar__tile--now {
+  @apply bg-transparent !important;
+  border: 2px solid rgba(59, 130, 246, 0.4);
+  animation: pulse-border 3s infinite ease-in-out;
+}
+
+.react-calendar__tile--now:before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 10px;
+  background: radial-gradient(circle at center, rgba(59,130,246,0.1) 0%, transparent 70%);
+  z-index: -1;
+}
+
+.react-calendar__tile--now abbr {
+  @apply text-blue-600 dark:text-blue-400 font-semibold;
+}
+
+/* Selected date - organic highlight */
+.react-calendar__tile--active {
+  @apply bg-blue-50 dark:bg-blue-900/20 !important;
+  box-shadow: 0 3px 10px rgba(59, 130, 246, 0.1);
+  transform: scale(1.05);
+  z-index: 1;
+}
+
+.react-calendar__tile--active:hover {
+  transform: scale(1.05) translateY(-2px);
+}
+
+.react-calendar__tile--active abbr {
+  @apply text-blue-700 dark:text-blue-300 font-semibold;
+}
+
+/* Neighboring month - faded naturally */
+.react-calendar__month-view__days__day--neighboringMonth {
+  opacity: 0.4;
+  transform: scale(0.95);
+  @apply text-gray-400 dark:text-gray-600;
+}
+
+.react-calendar__month-view__days__day--neighboringMonth:hover {
+  opacity: 0.7;
+  transform: scale(0.95) translateY(-2px);
+}
+
+/* Organic event indicators */
+.event-indicators {
+  @apply absolute flex flex-wrap gap-1 justify-center z-[1];
+  bottom: 17%;
+  left: 0;
+  right: 0;
+  transition: all 0.25s ease;
+}
+
+.react-calendar__tile:hover .event-indicators {
+  transform: translateY(-2px);
+}
+
+.event-indicator {
+  @apply h-1.5 w-1.5 rounded-full transition-all duration-300;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Staggered event indicator animation on hover */
+.event-indicator:nth-child(1) { transition-delay: 0ms; }
+.event-indicator:nth-child(2) { transition-delay: 30ms; }
+.event-indicator:nth-child(3) { transition-delay: 60ms; }
+.event-indicator:nth-child(4) { transition-delay: 90ms; }
+
+.react-calendar__tile:hover .event-indicator {
+  transform: scale(1.4);
+  margin: 0 2px;
+}
+
+/* Year/decade view with consistent styling */
+.react-calendar__year-view__months,
+.react-calendar__decade-view__years,
+.react-calendar__century-view__decades {
+  @apply gap-2 p-2;
+}
+
+.react-calendar__year-view__months__month,
+.react-calendar__decade-view__years__year,
+.react-calendar__century-view__decades__decade {
+  @apply rounded-xl transition-all;
+  position: relative;
+  overflow: hidden;
+}
+
+.react-calendar__year-view__months__month:hover,
+.react-calendar__decade-view__years__year:hover,
+.react-calendar__century-view__decades__decade:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+  @apply bg-blue-50/70 dark:bg-navy-700/70;
+}
+
+/* Calendar view transitions */
+.react-calendar__year-view,
+.react-calendar__decade-view,
+.react-calendar__century-view {
+  animation: fadeScale 0.3s ease-out;
+}
+
+@keyframes fadeScale {
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .react-calendar__tile:hover {
+    transform: none;
+  }
+  
+  .react-calendar__tile:hover .event-indicator {
+    transform: scale(1.2);
+  }
+}

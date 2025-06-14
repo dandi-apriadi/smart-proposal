@@ -1,0 +1,295 @@
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                           ADMIN PAGE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Dashboard
+   - System Overview
+   - Active Session Status
+   - User Activity Metrics
+   - Proposal Statistics
+   - Urgent Notifications
+   - System Health Indicators
+
+2. User Management
+   - User Analytics
+   - User Directory
+   - Role Assignments
+   - Add New User
+   - User Details/Edit
+   - Account Actions
+
+3. Proposal Management
+   - Proposal Analytics
+   - Submission Overview
+   - Template Library
+   - Proposal Review Queue
+   - Archived Proposals
+
+4. Session Management
+   - Session Calendar
+   - Session Analytics
+   - Create New Session
+   - Session Configuration
+      + Session Timeline Setup
+      + Reviewer Assignments
+      + Submission Windows
+      + Review Period Settings
+      + Eligibility Review Process
+      + Progress Tracking Dashboard
+      + Final Report Management
+      + Session Closure Workflow
+   * Session Policies
+      + Single Active Session Rule
+      + Session State Transitions
+      + Administrative Approval Requirements
+      + Visual Timeline Controls
+
+5. Training Management
+   - ML Model Performance
+   - Dataset Management
+   - Model Configuration
+   - Training History
+   - Prediction Analytics
+
+6. System Monitoring
+   - Activity Logs
+   - User Reports
+   - System Metrics
+   - Audit Trail
+   - Export Tools
+
+7. Notification Center
+   - Message Center
+   - Notification Settings
+   - Notification History
+   - Bulk Actions
+   - Email/SMS Integration
+
+8. Activity Monitoring
+   - Real-time Activity Feed
+   - Advanced Filtering
+   - Export Activity Logs
+   - System Metrics Dashboard
+
+9. User Reporting
+   - Generate Custom Reports
+   - Report Templates
+   - Scheduling Reports
+   - Export to Multiple Formats
+
+10. System Settings
+    - Global Configuration
+    - Backup & Recovery
+    - System Health
+
+11. Log Out
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                            DOSEN PAGE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Dashboard 
+    - Proposal Status Tracker
+    - Session Timeline Visualization
+    - Notification Center
+    - Recent Activities Feed
+    - Warning & Deadline Alerts
+    - Upcoming Tasks Calendar
+2. Profile Management
+    - Personal Information
+    - Academic Credentials
+    - Account Settings
+    - Password & Security
+    - Linked Accounts
+3. Proposal Workspace
+    - My Proposals Overview
+    - New Proposal Creation
+    - Draft Management
+    - Template Gallery
+    - Proposal Detail View
+    - Edit Proposal (Available until session upload deadline)
+    - Delete Proposal (Available until session upload deadline)
+    - Collaboration Tools
+    * Rules & Guidelines
+        + Maksimum 1 Proposal aktif per Session
+        + Guidelines & Best Practices
+        + Status tracking dengan milestone visual
+4. Notification Hub
+    - Important Alerts
+    - Deadline Reminders
+    - Feedback Notifications
+    - Custom Alert Settings
+5. Activity Tracker
+    - Recent Actions
+    - Timeline View
+    - Export Activity History
+6. Progress Reporting
+    - Laporan Kemajuan Templates
+    - Progress Visualization
+    - Attachment Management
+    - Review History
+7. Final Reporting
+    - Laporan Akhir Builder
+    - Supporting Documentation
+    - Submission Status
+    - Feedback Management
+8. Issue Management
+    - Warning Notifications
+    - Resolution Center
+    - Escalation Options
+    - History & Tracking
+9. Resource Center
+    - Documentation Library
+    - FAQ Database
+    - Video Tutorials
+    - Contact Support
+10. Log Out
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                       PANITIA/REVIEWER PAGE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Dashboard
+    - Active Session Overview
+    - Review Queue Status
+    - Proposal Distribution Map
+    - Upcoming Deadlines
+    - Notification Center
+    - Performance Analytics
+2. Profile & Settings
+    - Personal Information
+    - Expertise Areas
+    - Availability Calendar
+    - Communication Preferences
+    - Account Security
+3. Review Management
+    - Assigned Proposals Queue
+    - Review Templates & Rubrics
+    - Batch Review Tools
+    - Progress Reports Review Panel
+    - Final Reports Evaluation
+    - Historical Reviews Archive
+    - Collaborative Assessment Tools
+    - Decision Documentation
+4. Notification Hub
+    - Important Alerts
+    - Deadline Reminders
+    - Feedback Notifications
+    - Custom Alert Settings
+5. Activity Tracker
+    - Recent Actions
+    - Timeline View
+    - Export Activity History
+6. Log Out
+7. Switch Mode (Dosen Page/Reviewer Page)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                            WADIR PAGE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Dashboard
+    - Jadwal Saat ini
+    - Proposal Summary
+    - Laporan Summary 
+    - Notification Summary
+    - Log Activity Summary
+2. Proposal Management
+    - Proposal Analisis
+    - Template Management
+    - Proposal List 
+    - Detail/Review kelayakan Proposal 
+    - Delete Proposal
+3. Laporan Management
+    - Laporan Analisis/Summary
+    - List Laporan Kemajuan
+    - List Laporan Akhir
+    - Review Laporan Kemajuan/Akhir
+    - Hasil Laporan Akhir
+4. Session Management
+    - Session Analisis
+    - Add Session 
+    - Session Detail/Management
+        + Start Session
+        + Jadwal Management
+        + Panitia/Reviewer Management
+        + Start Upload Proposal 
+        + Close Upload Proposal
+        + Review Kelayakan Session Start (wadir/admin) / untuk menentukan proposal mana yg akan di setujui
+        + Laporan Kemajuan
+        + Laporan Akhir
+        + Review Akhir (Berhasil/TGR)
+        + Closed Session
+        + Session History
+    * Rules
+        + Hanya boleh ada 1 session Aktif
+        + tidak bisa menambahkan session baru jika masih ada session berjalan
+        + session di atur oleh admin
+5. Profile
+6. Notification
+7. Log Activity
+8. Log Out
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                                          BENDAHARA PAGE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Dashboard
+    - Ringkasan Pembiayaan
+    - Proposal Menunggu Pembiayaan
+    - Laporan Keuangan Terkini
+    - Notifikasi Penting
+    - Status Pencairan Dana
+
+2. Manajemen Pembiayaan
+    - Daftar Proposal Disetujui
+    - Pencairan Dana
+    - Riwayat Pembayaran
+    - Jadwal Pencairan
+    - Laporan Keuangan per Proposal
+
+3. Verifikasi Laporan
+    - Laporan Kemajuan Keuangan
+    - Laporan Penggunaan Dana
+    - Verifikasi Bukti Pengeluaran
+    - Validasi Laporan Akhir Keuangan
+    - Status Bebas TGR
+
+4. Manajemen Anggaran
+    - Alokasi Dana per Sesi
+    - Monitoring Penggunaan Dana
+    - Distribusi Anggaran
+    - Sisa Anggaran
+    - Laporan Realisasi Anggaran
+
+5. TGR Management
+    - Daftar Penelitian dengan TGR
+    - Proses Bebas TGR
+    - Riwayat TGR
+    - Notifikasi TGR
+    - Validasi Bebas TGR
+
+6. Laporan Keuangan
+    - Laporan Keuangan Bulanan
+    - Laporan Keuangan per Sesi
+    - Ekspor Laporan Keuangan
+    - Laporan Audit Keuangan
+    - Analisis Penggunaan Dana
+
+7. Profile Management
+    - Informasi Profil
+    - Pengaturan Akun
+    - Keamanan Akun
+    - Preferensi Notifikasi
+
+8. Notification Hub
+    - Pemberitahuan Pencairan
+    - Pengingat Tenggat Waktu
+    - Permintaan Verifikasi
+    - Laporan Memerlukan Tindakan
+
+9. Activity Tracker
+    - Aktivitas Terbaru
+    - Riwayat Transaksi
+    - Ekspor Riwayat Aktivitas
+
+10. Log Out

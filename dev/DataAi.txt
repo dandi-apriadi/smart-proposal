@@ -1,0 +1,14 @@
+1. FItur Numerik
+    - total anggaran
+    - data harga per item 
+    - jumlah item 
+    - presentasi tiap kategori 
+    - jumlah peserta vs total biaya 
+2. fitur perbandingan 
+    - harga per item dibanding harga standar pasar: gunakan API chat gpt 
+    - bandingkan anggaran sejenis dengan proposal lain di kegiatan yg mirip 
+3. fitur kegiatan 
+    - tipe kegiatan 
+    - lama kegiatan 
+    - lokasi 
+    - dokumen pendukung
