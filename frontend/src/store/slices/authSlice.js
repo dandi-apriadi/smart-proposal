@@ -9,13 +9,15 @@ const api = axios.create({
 const initialState = {
     user: null,
     baseURL: "http://localhost:5000",
-    // baseURL: api,
-    microPage: "unset", // default value of microPage
+    microPage: "unset",
     homepage: "unset",
     isError: false,
     isSuccess: false,
     isLoading: false,
     message: "",
+    // Separate success states for different actions
+    loginSuccess: false,
+    logoutSuccess: false,
 };
 
 // Thunk untuk mendapatkan data pengguna
@@ -43,13 +45,14 @@ export const logoutUser = createAsyncThunk("user/logoutUser", async (_, thunkAPI
 // Thunk untuk login pengguna
 export const loginUser = createAsyncThunk("user/loginUser", async (user, thunkAPI) => {
     try {
-        // Transform user data to match backend expectations
-        const userData = {
-            email: user.email,
-            password: user.password
-        };
-        const response = await api.post("/api/shared/login", userData);
-        return response.data;
+        const response = await api.post("/api/shared/login", user);
+
+        // Extract user data from response
+        const userData = response.data.user || response.data;
+        console.log('Login response:', response.data);
+        console.log('User data extracted:', userData);
+
+        return userData;
     } catch (error) {
         const message = error?.response?.data?.msg || "Something went wrong!";
         return thunkAPI.rejectWithValue(message);
@@ -70,11 +73,29 @@ export const registerUser = createAsyncThunk("user/register", async (userData, t
 // Slice Redux untuk otentikasi
 export const authSlice = createSlice({
     name: "auth",
-    initialState,
-    reducers: {
-        reset: (state) => initialState,
+    initialState, reducers: {
+        reset: (state) => {
+            state.isLoading = false;
+            state.isSuccess = false;
+            state.isError = false;
+            state.message = "";
+            state.loginSuccess = false;
+            state.logoutSuccess = false;
+        },
+        clearAuth: (state) => {
+            return {
+                ...initialState,
+                user: null,
+                isLoading: false,
+                isSuccess: false,
+                isError: false,
+                message: "",
+                loginSuccess: false,
+                logoutSuccess: false,
+            };
+        },
         setMicroPage: (state, action) => {
-            state.microPage = action.payload; // Update microPage value
+            state.microPage = action.payload;
         },
     },
     extraReducers: (builder) => {
@@ -82,11 +103,12 @@ export const authSlice = createSlice({
             // Login User
             .addCase(loginUser.pending, (state) => {
                 state.isLoading = true;
-            })
-            .addCase(loginUser.fulfilled, (state, action) => {
+            }).addCase(loginUser.fulfilled, (state, action) => {
                 state.isLoading = false;
                 state.isSuccess = true;
+                state.loginSuccess = true;
                 state.user = action.payload;
+                console.log('Auth slice - User data stored:', action.payload);
             })
             .addCase(loginUser.rejected, (state, action) => {
                 state.isLoading = false;
@@ -124,11 +146,11 @@ export const authSlice = createSlice({
             // Logout User
             .addCase(logoutUser.pending, (state) => {
                 state.isLoading = true;
-            })
-            .addCase(logoutUser.fulfilled, (state) => {
+            }).addCase(logoutUser.fulfilled, (state) => {
                 state.isLoading = false;
-                state.isSuccess = true;
-                state.user = null; // Clear user data on logout
+                state.logoutSuccess = true;
+                state.user = null;
+                console.log('Logout successful');
             })
             .addCase(logoutUser.rejected, (state, action) => {
                 state.isLoading = false;
@@ -138,6 +160,6 @@ export const authSlice = createSlice({
     },
 });
 
-export const { reset, setMicroPage } = authSlice.actions; // Export setMicroPage
+export const { reset, clearAuth, setMicroPage } = authSlice.actions;
 
 export default authSlice.reducer;

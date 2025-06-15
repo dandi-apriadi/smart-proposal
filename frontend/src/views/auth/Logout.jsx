@@ -1,32 +1,55 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { logoutUser, reset } from "../../store/slices/authSlice";
+import { logoutUser, reset, clearAuth } from "../../store/slices/authSlice";
 
 export default function Logout() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
-  const { isSuccess, isError, message } = useSelector((state) => state.auth);
+  const [hasLoggedOut, setHasLoggedOut] = useState(false);
+  const { logoutSuccess, isError, message, isLoading } = useSelector((state) => state.auth);
 
   useEffect(() => {
-    // Dispatch the logout action
-    dispatch(logoutUser());
+    // Only dispatch logout once
+    if (!hasLoggedOut) {
+      console.log('Initiating logout...');
+      dispatch(logoutUser());
+      setHasLoggedOut(true);
+    }
+  }, [dispatch, hasLoggedOut]);
 
-    // Navigate to the login page on successful logout
-    if (isSuccess) {
-      dispatch(reset());
-      navigate("/auth/sign-in");
+  // Handle logout result
+  useEffect(() => {
+    if (hasLoggedOut && logoutSuccess) {
+      console.log('Logout successful, clearing auth and navigating...');
+
+      // Clear all auth state
+      dispatch(clearAuth());
+
+      // Navigate to login page
+      setTimeout(() => {
+        navigate("/auth/sign-in", { replace: true });
+      }, 1000);
     }
 
-    // Reset the state
-  }, [dispatch, isSuccess, navigate]);
+    if (hasLoggedOut && isError) {
+      console.error('Logout failed:', message);
+      // Still navigate to login even if logout fails
+      setTimeout(() => {
+        dispatch(clearAuth());
+        navigate("/auth/sign-in", { replace: true });
+      }, 1000);
+    }
+  }, [hasLoggedOut, logoutSuccess, isError, message, dispatch, navigate]);
 
   return (
     <div className="mt-16 flex h-full w-full items-center justify-center">
       <div className="text-center">
+        <div className="mb-4">
+          <div className="w-16 h-16 border-4 border-blue-700 border-t-transparent rounded-full animate-spin mx-auto"></div>
+        </div>
         {isError ? (
-          <p className="text-red-500">{message}</p>
+          <p className="text-red-500">Logout failed: {message}</p>
         ) : (
           <p className="text-navy-700 dark:text-white">Logging out...</p>
         )}

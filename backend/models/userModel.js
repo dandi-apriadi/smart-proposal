@@ -10,24 +10,22 @@ const { DataTypes } = Sequelize;
 const User = db.define('users', {
     user_id: {
         type: DataTypes.STRING(36),
-        defaultValue: () => uuidv4(),
+        defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
         allowNull: false
-    },
-    username: {
+    }, username: {
         type: DataTypes.STRING(50),
         allowNull: false,
-        unique: true
+        unique: false // Let manual index handle uniqueness
     },
     password_hash: {
         type: DataTypes.STRING(255),
         allowNull: false,
         field: 'password_hash'
-    },
-    email: {
+    }, email: {
         type: DataTypes.STRING(100),
         allowNull: false,
-        unique: true,
+        unique: false, // Let manual index handle uniqueness
         validate: {
             isEmail: true
         }
@@ -43,6 +41,11 @@ const User = db.define('users', {
     faculty: {
         type: DataTypes.STRING(100),
         allowNull: true
+    },
+    department_id: {
+        type: DataTypes.STRING(36),
+        allowNull: true
+        // Remove automatic foreign key reference to avoid constraint issues
     },
     department: {
         type: DataTypes.STRING(100),
@@ -77,17 +80,44 @@ const User = db.define('users', {
             const value = this.getDataValue('last_login');
             return value ? moment(value).format('D MMMM, YYYY, h:mm A') : null;
         }
-    },
-    status: {
+    }, status: {
         type: DataTypes.ENUM('active', 'inactive'),
         allowNull: false,
         defaultValue: 'active'
+    }, head_id: {
+        type: DataTypes.STRING(36),
+        allowNull: true,
+        references: {
+            model: 'users',
+            key: 'user_id'
+        }
     }
 }, {
     freezeTableName: true,
     timestamps: true,
     createdAt: 'created_at',
     updatedAt: 'updated_at',
+    indexes: [
+        // Manually define indexes to prevent automatic creation
+        {
+            unique: true,
+            fields: ['username'],
+            name: 'idx_users_username'
+        },
+        {
+            unique: true,
+            fields: ['email'],
+            name: 'idx_users_email'
+        },
+        {
+            fields: ['department_id'],
+            name: 'idx_users_department_id'
+        },
+        {
+            fields: ['head_id'],
+            name: 'idx_users_head_id'
+        }
+    ],
     hooks: {
         beforeCreate: async (user) => {
             if (user.password_hash) {

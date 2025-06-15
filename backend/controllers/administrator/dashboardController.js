@@ -1,12 +1,11 @@
-export const getDashboard = async (req, res) => {
-    try {
-        res.status(200).json({
-            message: "Welcome to the customer dashboard!",
-        });
-    } catch (error) {
-        res.status(500).json({
-            status: 'error',
-            message: error.message
-        });
-    }
+import { getAdminDashboard } from '../dashboardController.js';
+
+// Re-export admin dashboard function for administrator routes
+// This allows administrator-specific routing while reusing the main dashboard logic
+export const getDashboard = getAdminDashboard;
+
+// Administrator-specific dashboard function (alias for admin dashboard)
+export const getAdministratorDashboard = async (req, res) => {
+    // This routes to the admin dashboard since administrator = admin
+    return await getAdminDashboard(req, res);
 };

@@ -11,29 +11,83 @@ const SignIn = () => {
   const [emailFocused, setEmailFocused] = useState(false);
   const [passwordFocused, setPasswordFocused] = useState(false);
   const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const { user, isLoading, isError, isSuccess, message } = useSelector(
+  const navigate = useNavigate(); const { user, isLoading, isError, isSuccess, loginSuccess, message } = useSelector(
     (state) => state.auth
   );
 
+  // Debug - log state changes
   useEffect(() => {
+    console.log('Redux state changed:', {
+      user,
+      isLoading,
+      isError,
+      isSuccess,
+      loginSuccess,
+      message,
+      userRole: user?.role
+    });
+  }, [user, isLoading, isError, isSuccess, loginSuccess, message]); useEffect(() => {
+    // Only reset on unmount, not on every render
     return () => {
-      dispatch(reset());
+      if (isError) {
+        dispatch(reset());
+      }
     };
-  }, [dispatch]);
-  // Handle authentication state
+  }, [dispatch, isError]);
+
+  // Check if user is already logged in when component mounts
   useEffect(() => {
-    // Check if login was successful and user exists
-    if (isSuccess && user) {
-      const userData = user;
+    if (user && user.role && !isLoading) {
       let route;
+      switch (user.role) {
+        case "admin":
+          route = "/admin/default";
+          break;
+        case "wadir":
+          route = "/wadir/default";
+          break;
+        case "dosen":
+          route = "/dosen/default";
+          break;
+        case "bendahara":
+          route = "/bendahara/default";
+          break;
+        case "reviewer":
+          route = "/reviewer/default";
+          break;
+        default:
+          return; // Stay on login page if role is invalid
+      }
+      console.log("User already logged in, redirecting to:", route);
+      navigate(route);
+    }
+  }, [user, navigate, isLoading]);
+  // Handle authentication state changes (new login)
+  useEffect(() => {
+    if (loginSuccess && user && user.role) {
+      const userData = user;
+      let route;      // Show success message
+      Swal.fire({
+        position: 'top-end',
+        icon: 'success',
+        title: 'Login Berhasil!',
+        text: `Selamat datang, ${userData.full_name || userData.name || 'User'}`,
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        toast: true,
+        customClass: {
+          popup: 'rounded-xl shadow-lg',
+          title: 'text-sm font-medium',
+          content: 'text-xs'
+        },
+        width: '320px'
+      });
+
       // Navigate based on specific role
       switch (userData.role) {
         case "admin":
           route = "/admin/default";
-          break;
-        case "kajur":
-          route = "/kajur/default";
           break;
         case "wadir":
           route = "/wadir/default";
@@ -49,65 +103,98 @@ const SignIn = () => {
           break;
         default:
           route = "/auth/sign-in";
-      }
-      console.log("User logged in:", userData);
-      navigate(route);
-      dispatch(reset()); // Reset state after navigation
+      }      console.log("New login successful:");
+      console.log("User data:", userData);
+      console.log("User Role:", userData.role);
+      console.log("Navigating to:", route);
+
+      // Navigate immediately after showing toast notification
+      setTimeout(() => {
+        navigate(route);
+        // Don't reset immediately, let the new page handle the state
+      }, 1000);
     }
 
     if (isError) {
       dispatch(reset()); // Reset state after error
     }
-  }, [isSuccess, isError, user, message, navigate, dispatch]);
-
-  const handleAuth = async (e) => {
-    e.preventDefault();
-
-    // Form validation
+  }, [loginSuccess, isError, user, navigate, dispatch]); const handleAuth = async (e) => {
+    e.preventDefault();    // Form validation
     if (!email.trim() || !password.trim()) {
       Swal.fire({
+        position: 'top-end',
         icon: 'warning',
-        title: 'Missing Fields',
-        text: 'Please fill in all fields',
-        timer: 2000,
+        title: 'Field Kosong',
+        text: 'Silakan isi semua field yang diperlukan',
+        showConfirmButton: false,
+        timer: 3000,
         timerProgressBar: true,
+        toast: true,
         customClass: {
-          popup: 'rounded-xl'
-        }
+          popup: 'rounded-xl shadow-lg',
+          title: 'text-sm font-medium',
+          content: 'text-xs'
+        },
+        width: '320px'
       });
       return;
-    }
-
-    // Email validation
+    }    // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       Swal.fire({
+        position: 'top-end',
         icon: 'warning',
-        title: 'Invalid Email',
-        text: 'Please enter a valid email address',
-        timer: 2000,
+        title: 'Email Tidak Valid',
+        text: 'Silakan masukkan alamat email yang valid',
+        showConfirmButton: false,
+        timer: 3000,
         timerProgressBar: true,
+        toast: true,
         customClass: {
-          popup: 'rounded-xl'
-        }
+          popup: 'rounded-xl shadow-lg',
+          title: 'text-sm font-medium',
+          content: 'text-xs'
+        },
+        width: '320px'
       });
       return;
     }
 
     try {
-      await dispatch(loginUser({ email: email.trim(), password: password.trim() })).unwrap();
+      console.log('Attempting login with:', { email: email.trim() });
+
+      const resultAction = await dispatch(loginUser({
+        email: email.trim(),
+        password: password.trim()
+      }));
+
+      console.log('Login action result:', resultAction);
+
+      // Check if login was successful
+      if (loginUser.fulfilled.match(resultAction)) {
+        // Success is handled in useEffect
+        console.log('Login successful, user data received:', resultAction.payload);
+      } else {
+        // Handle login failure
+        console.error('Login failed:', resultAction.payload);
+        throw new Error(resultAction.payload || 'Login failed');
+      }
     } catch (error) {
-      console.error('Login error:', error);
-      Swal.fire({
+      console.error('Login error:', error); Swal.fire({
+        position: 'top-end',
         icon: 'error',
-        title: 'Login Failed',
-        text: error?.message || 'Invalid credentials',
-        confirmButtonColor: '#003d7c',
-        timer: 3000,
+        title: 'Login Gagal',
+        text: error?.message || 'Email atau password salah',
+        showConfirmButton: false,
+        timer: 4000,
         timerProgressBar: true,
+        toast: true,
         customClass: {
-          popup: 'rounded-xl'
-        }
+          popup: 'rounded-xl shadow-lg',
+          title: 'text-sm font-medium',
+          content: 'text-xs'
+        },
+        width: '320px'
       });
     }
   };

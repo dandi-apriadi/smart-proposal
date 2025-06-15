@@ -59,32 +59,46 @@ app.use(
     })
 );
 
-// Database initialization
+// Database initialization with better error handling
 const initDatabase = async () => {
     try {
         await db.authenticate();
         console.log('Database connection established.');
 
-        // Drop existing indexes
-        await db.query('SET FOREIGN_KEY_CHECKS = 0');
-        try {
-            await db.query('DROP INDEX users_email_unique ON users');
-        } catch (err) { } // Ignore if index doesn't exist
+        // Check if tables exist first
+        const [results] = await db.query("SHOW TABLES LIKE 'users'");
+        const tablesExist = results.length > 0;
 
-        // Sync with minimal configuration
+        if (tablesExist) {
+            console.log('Tables already exist, skipping sync...');
+            return true;
+        }
+
+        // If tables don't exist, create them without foreign key constraints first
+        console.log('Creating tables without foreign key constraints...');
         await db.sync({
             force: false,
-            alter: true,
-            hooks: false
+            alter: false,
+            hooks: false,
+            logging: false
         });
 
-        await db.query('SET FOREIGN_KEY_CHECKS = 1');
         console.log('Database synchronized successfully');
         return true;
     } catch (error) {
         console.error('Database initialization error:', error);
-        await db.query('SET FOREIGN_KEY_CHECKS = 1');
-        return false;
+
+        // Try to continue without database sync
+        try {
+            console.log('Attempting to continue without sync...');
+            // Just verify connection is working
+            await db.query('SELECT 1');
+            console.log('Database connection verified, continuing without sync...');
+            return true;
+        } catch (connectionError) {
+            console.error('Database connection failed:', connectionError);
+            return false;
+        }
     }
 };
 

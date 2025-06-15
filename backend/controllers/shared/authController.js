@@ -23,15 +23,16 @@ export const login = async (req, res) => {
 
             if (!match) {
                 return res.status(400).json({ msg: "Wrong password" });
-            }            // Set session data
-            req.session.user_id = user.user_id;
-            console.log("Session user_id set to:", req.session.user_id);
+            } req.session.user_id = user.user_id;
+            console.log('Session user_id set:', req.session.user_id);
 
-            // Remove sensitive data from response
             const { password_hash, ...userData } = user.dataValues;
+            console.log('Login successful - User data:', userData);
 
-            // Return user data
-            res.status(200).json(userData);
+            res.status(200).json({
+                msg: "Login successful",
+                user: userData
+            });
 
         } catch (hashError) {
             console.error('Password verification error:', hashError);
@@ -52,22 +53,14 @@ export const registrasi = async (req, res) => {
         const existingUser = await User.findOne({ where: { email } });
         if (existingUser) {
             return res.status(400).json({ msg: "Email already in use" });
-        }
-
-        // Create new user with provided values
+        }        // Create new user with provided values
         await User.create({
-            fullname: name, // Map name from frontend to fullname in database
+            username: email.split('@')[0], // Use email prefix as username
+            full_name: name, // Map name from frontend to full_name in database
             email,
-            password, // Password is automatically hashed in the User model hooks
-            phone_number: phone, // Map phone from frontend to phone_number in database
-            role: 'customer',
-            status: 'active',
-            verified: true,
-            address: '-',
-            province_id: 0,
-            city_id: 0,
-            district_id: 0,
-            postal_code: '-'
+            password_hash: password, // Password is automatically hashed in the User model hooks
+            role: 'dosen', // Default role for new registration
+            status: 'active'
         });
 
         res.status(201).json({ msg: "Registration successful" });
@@ -82,22 +75,16 @@ export const Me = async (req, res) => {
     try {
         if (!req.session.user_id) {
             return res.status(401).json({ msg: "Mohon login ke akun anda" });
-        }
-        const user = await User.findOne({
+        } const user = await User.findOne({
             attributes: [
                 'user_id',
-                'username',
-                'email',
                 'full_name',
+                'email',
                 'role',
                 'profile_image',
-                'faculty',
-                'department',
-                'position',
                 'status',
                 'created_at',
-                'updated_at',
-                'last_login'
+                'updated_at'
             ],
             where: {
                 user_id: req.session.user_id
