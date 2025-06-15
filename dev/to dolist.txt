@@ -11,7 +11,6 @@ Date Created: June 15, 2025
 - Sub-routes:
   - /admin/user-analytics (✅ API INTEGRATED - using real user stats)
   - /admin/add-new-user (✅ API INTEGRATED - creates real users)
-  - /admin/account-actions (✅ API INTEGRATED - real user operations)
 - Status: ✅ BACKEND READY - ✅ API INTEGRATION COMPLETE
 
 🎯 **API INTEGRATION COMPLETED:**
