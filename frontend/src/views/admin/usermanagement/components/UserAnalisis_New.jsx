@@ -599,211 +599,82 @@ const UserAnalisis = () => {
                         </div>
                     ))}
                 </div>
-            </div>            {/* Insights Section */}
-            <div className="space-y-8" data-aos="fade-up">
-                {/* Section Header */}
-                <div className="text-center mb-8">
-                    <h3 className="text-2xl font-bold text-gray-900 mb-2">Advanced User Insights</h3>
-                    <p className="text-gray-600 max-w-2xl mx-auto">
-                        Comprehensive analytics and behavioral patterns to understand user engagement and platform performance
-                    </p>
-                </div>
+            </div>
 
-                {/* Overview Insights Card */}
-                <div className="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-2xl p-8 border border-blue-200/50 shadow-lg">
-                    <div className="flex items-center gap-3 mb-6">
-                        <div className="p-3 bg-blue-600 rounded-xl">
-                            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                            </svg>
-                        </div>
-                        <div>
-                            <h4 className="text-xl font-bold text-gray-900">Performance Overview</h4>
-                            <p className="text-blue-700">Key performance indicators and trends</p>
-                        </div>
-                    </div>
+            {/* Insights Section */}
+            <div className="bg-white rounded-xl p-6 shadow-sm border border-blue-gray-100" data-aos="fade-up">
+                <h4 className="text-lg font-semibold text-blue-gray-800 mb-6">User Insights</h4>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                {/* Overview Metrics */}
+                <div className="mb-8">
+                    <h5 className="text-md font-medium text-blue-gray-700 mb-4">Overview Metrics</h5>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         {userInsightsData.overview.metrics.map((metric, index) => (
-                            <div key={index} className="bg-white/70 backdrop-blur-sm rounded-xl p-6 border border-white/20 hover:bg-white/90 transition-all duration-300">
-                                <div className="flex items-start justify-between mb-3">
-                                    <div className="p-2 bg-blue-100 rounded-lg">
-                                        {Icons.trendingUp}
-                                    </div>
-                                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${metric.trend.includes('+') ? 'bg-green-100 text-green-700' :
-                                            metric.trend.includes('-') ? 'bg-red-100 text-red-700' :
-                                                'bg-blue-100 text-blue-700'
-                                        }`}>
-                                        {metric.trend}
-                                    </span>
-                                </div>
-                                <h5 className="text-gray-600 text-sm font-medium mb-1">{metric.title}</h5>
-                                <p className="text-2xl font-bold text-gray-900">{metric.value}</p>
+                            <div key={index} className="p-4 bg-blue-50 rounded-lg">
+                                <p className="text-sm text-blue-gray-600">{metric.title}</p>
+                                <p className="text-xl font-bold text-blue-gray-900">{metric.value}</p>
+                                <p className={`text-sm ${metric.trendColor}`}>{metric.trend}</p>
                             </div>
                         ))}
                     </div>
-
                     {userInsightsData.overview.summary && (
-                        <div className="bg-white/50 backdrop-blur-sm rounded-xl p-4 border border-white/30">
-                            <p className="text-gray-700 leading-relaxed">{userInsightsData.overview.summary}</p>
-                        </div>
+                        <p className="mt-4 text-sm text-blue-gray-600">{userInsightsData.overview.summary}</p>
                     )}
                 </div>
 
-                {/* Engagement Insights Card */}
-                <div className="bg-gradient-to-br from-green-50 to-emerald-100 rounded-2xl p-8 border border-green-200/50 shadow-lg">
-                    <div className="flex items-center gap-3 mb-6">
-                        <div className="p-3 bg-green-600 rounded-xl">
-                            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                            </svg>
-                        </div>
-                        <div>
-                            <h4 className="text-xl font-bold text-gray-900">User Engagement</h4>
-                            <p className="text-green-700">Activity levels and interaction patterns</p>
-                        </div>
-                    </div>
-
-                    {/* Engagement Metric Cards */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                {/* Engagement Metrics */}
+                <div className="mb-8">
+                    <h5 className="text-md font-medium text-blue-gray-700 mb-4">Engagement Metrics</h5>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                         {userInsightsData.engagement.metrics.map((metric, index) => (
-                            <div key={index} className="bg-white/70 backdrop-blur-sm rounded-xl p-6 border border-white/20 hover:bg-white/90 transition-all duration-300">
-                                <div className="flex items-start justify-between mb-3">
-                                    <div className="p-2 bg-green-100 rounded-lg">
-                                        {Icons.trendingUp}
-                                    </div>
-                                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${metric.trend.includes('+') ? 'bg-green-100 text-green-700' :
-                                            metric.trend.includes('-') ? 'bg-red-100 text-red-700' :
-                                                'bg-blue-100 text-blue-700'
-                                        }`}>
-                                        {metric.trend}
-                                    </span>
-                                </div>
-                                <h5 className="text-gray-600 text-sm font-medium mb-1">{metric.title}</h5>
-                                <p className="text-2xl font-bold text-gray-900">{metric.value}</p>
-                                {metric.previousValue && (
-                                    <p className="text-xs text-gray-500 mt-1">Previous: {metric.previousValue}</p>
-                                )}
+                            <div key={index} className="p-4 bg-green-50 rounded-lg">
+                                <p className="text-sm text-blue-gray-600">{metric.title}</p>
+                                <p className="text-xl font-bold text-blue-gray-900">{metric.value}</p>
+                                <p className={`text-sm ${metric.trendColor}`}>{metric.trend}</p>
                             </div>
                         ))}
                     </div>
-
-                    {/* Engagement by Role */}
                     {userInsightsData.engagement.engagementByRole.length > 0 && (
-                        <div className="mb-6">
-                            <h5 className="text-lg font-semibold text-gray-800 mb-4">Engagement by User Role</h5>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                                {userInsightsData.engagement.engagementByRole.map((role, index) => (
-                                    <div key={index} className="bg-white/70 backdrop-blur-sm rounded-xl p-4 border border-white/20 hover:bg-white/90 transition-all duration-300">
-                                        <div className="flex items-center justify-between mb-2">
-                                            <h6 className="text-sm font-medium text-gray-700">{role.role}</h6>
-                                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${parseFloat(role.progress) > 0 ? 'bg-green-100 text-green-700' :
-                                                    parseFloat(role.progress) < 0 ? 'bg-red-100 text-red-700' :
-                                                        'bg-gray-100 text-gray-700'
-                                                }`}>
-                                                {parseFloat(role.progress) > 0 ? '+' : ''}{role.progress}%
-                                            </span>
-                                        </div>
-                                        <div className="mb-2">
-                                            <div className="flex items-center justify-between text-sm">
-                                                <span className="text-gray-600">Score</span>
-                                                <span className="font-bold text-gray-900">{role.score}%</span>
-                                            </div>
-                                            <div className="w-full bg-gray-200 rounded-full h-2 mt-1">
-                                                <div
-                                                    className="bg-green-500 h-2 rounded-full transition-all duration-300"
-                                                    style={{ width: `${role.score}%` }}
-                                                ></div>
-                                            </div>
-                                        </div>
-                                        <p className="text-xs text-gray-500">Previous: {role.previousScore}%</p>
-                                    </div>
-                                ))}
-                            </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                            {userInsightsData.engagement.engagementByRole.map((role, index) => (
+                                <div key={index} className="p-3 bg-gray-50 rounded-lg">
+                                    <p className="text-sm text-blue-gray-600">{role.role}</p>
+                                    <p className="text-lg font-bold text-blue-gray-900">{role.score}%</p>
+                                    <p className="text-xs text-green-600">+{role.progress}%</p>
+                                </div>
+                            ))}
                         </div>
                     )}
-
                     {userInsightsData.engagement.summary && (
-                        <div className="bg-white/50 backdrop-blur-sm rounded-xl p-4 border border-white/30">
-                            <p className="text-gray-700 leading-relaxed">{userInsightsData.engagement.summary}</p>
-                        </div>
+                        <p className="text-sm text-blue-gray-600">{userInsightsData.engagement.summary}</p>
                     )}
                 </div>
 
-                {/* Retention Insights Card */}
-                <div className="bg-gradient-to-br from-purple-50 to-violet-100 rounded-2xl p-8 border border-purple-200/50 shadow-lg">
-                    <div className="flex items-center gap-3 mb-6">
-                        <div className="p-3 bg-purple-600 rounded-xl">
-                            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                            </svg>
-                        </div>
-                        <div>
-                            <h4 className="text-xl font-bold text-gray-900">User Retention</h4>
-                            <p className="text-purple-700">Loyalty metrics and long-term engagement</p>
-                        </div>
-                    </div>
-
-                    {/* Retention Metric Cards */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                {/* Retention Metrics */}
+                <div>
+                    <h5 className="text-md font-medium text-blue-gray-700 mb-4">Retention Metrics</h5>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                         {userInsightsData.retention.metrics.map((metric, index) => (
-                            <div key={index} className="bg-white/70 backdrop-blur-sm rounded-xl p-6 border border-white/20 hover:bg-white/90 transition-all duration-300">
-                                <div className="flex items-start justify-between mb-3">
-                                    <div className="p-2 bg-purple-100 rounded-lg">
-                                        {Icons.trendingUp}
-                                    </div>
-                                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${metric.trend.includes('+') ? 'bg-green-100 text-green-700' :
-                                            metric.trend.includes('-') ? 'bg-red-100 text-red-700' :
-                                                'bg-blue-100 text-blue-700'
-                                        }`}>
-                                        {metric.trend}
-                                    </span>
-                                </div>
-                                <h5 className="text-gray-600 text-sm font-medium mb-1">{metric.title}</h5>
-                                <p className="text-2xl font-bold text-gray-900">{metric.value}</p>
+                            <div key={index} className="p-4 bg-purple-50 rounded-lg">
+                                <p className="text-sm text-blue-gray-600">{metric.title}</p>
+                                <p className="text-xl font-bold text-blue-gray-900">{metric.value}</p>
+                                <p className={`text-sm ${metric.trendColor}`}>{metric.trend}</p>
                             </div>
                         ))}
                     </div>
-
-                    {/* Retention by Role */}
                     {userInsightsData.retention.retentionByRole.length > 0 && (
-                        <div className="mb-6">
-                            <h5 className="text-lg font-semibold text-gray-800 mb-4">Retention Rate by User Role</h5>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                                {userInsightsData.retention.retentionByRole.map((role, index) => (
-                                    <div key={index} className="bg-white/70 backdrop-blur-sm rounded-xl p-4 border border-white/20 hover:bg-white/90 transition-all duration-300">
-                                        <div className="flex items-center justify-between mb-2">
-                                            <h6 className="text-sm font-medium text-gray-700">{role.role}</h6>
-                                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${parseFloat(role.progress) > 0 ? 'bg-green-100 text-green-700' :
-                                                    parseFloat(role.progress) < 0 ? 'bg-red-100 text-red-700' :
-                                                        'bg-gray-100 text-gray-700'
-                                                }`}>
-                                                {parseFloat(role.progress) > 0 ? '+' : ''}{role.progress}%
-                                            </span>
-                                        </div>
-                                        <div className="mb-2">
-                                            <div className="flex items-center justify-between text-sm">
-                                                <span className="text-gray-600">Retention</span>
-                                                <span className="font-bold text-gray-900">{role.rate}%</span>
-                                            </div>
-                                            <div className="w-full bg-gray-200 rounded-full h-2 mt-1">
-                                                <div
-                                                    className="bg-purple-500 h-2 rounded-full transition-all duration-300"
-                                                    style={{ width: `${role.rate}%` }}
-                                                ></div>
-                                            </div>
-                                        </div>
-                                        <p className="text-xs text-gray-500">Previous: {role.previousRate}%</p>
-                                    </div>
-                                ))}
-                            </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                            {userInsightsData.retention.retentionByRole.map((role, index) => (
+                                <div key={index} className="p-3 bg-gray-50 rounded-lg">
+                                    <p className="text-sm text-blue-gray-600">{role.role}</p>
+                                    <p className="text-lg font-bold text-blue-gray-900">{role.rate}%</p>
+                                    <p className="text-xs text-green-600">+{role.progress}%</p>
+                                </div>
+                            ))}
                         </div>
                     )}
-
                     {userInsightsData.retention.summary && (
-                        <div className="bg-white/50 backdrop-blur-sm rounded-xl p-4 border border-white/30">
-                            <p className="text-gray-700 leading-relaxed">{userInsightsData.retention.summary}</p>
-                        </div>
+                        <p className="text-sm text-blue-gray-600">{userInsightsData.retention.summary}</p>
                     )}
                 </div>
             </div>

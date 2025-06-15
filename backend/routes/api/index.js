@@ -12,6 +12,7 @@ import activityLogRoutes from './activityLogRoutes.js';
 import resourceRoutes from './resourceRoutes.js';
 import faqRoutes from './faqRoutes.js';
 import dashboardRoutes from './dashboardRoutes.js';
+import analyticsRoutes from './analyticsRoutes.js';
 
 const router = express.Router();
 
@@ -27,6 +28,7 @@ router.use('/activity-logs', activityLogRoutes);
 router.use('/resources', resourceRoutes);
 router.use('/faqs', faqRoutes);
 router.use('/dashboard', dashboardRoutes);
+router.use('/analytics', analyticsRoutes);
 
 // API health check
 router.get('/health', (req, res) => {
@@ -54,7 +56,8 @@ router.get('/docs', (req, res) => {
             'activity-logs': '/api/activity-logs',
             resources: '/api/resources',
             faqs: '/api/faqs',
-            dashboard: '/api/dashboard'
+            dashboard: '/api/dashboard',
+            analytics: '/api/analytics'
         },
         authentication: {
             required: 'Most endpoints require authentication via middleware',
