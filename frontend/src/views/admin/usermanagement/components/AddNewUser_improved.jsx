@@ -19,13 +19,15 @@ import {
     MdAssignment,
     MdWorkspaces,
     MdSend,
-    MdKeyboardTab
+    MdKeyboardTab,
+    MdBusiness,
+    MdWork
 } from "react-icons/md";
 import AOS from "aos";
 import "aos/dist/aos.css";
 
 const AddNewUser = ({ onCancel, onSuccess }) => {
-    // References for form sections - for smoother scrolling and focus management
+    // References for form sections
     const personalFormRef = useRef(null);
     const securityFormRef = useRef(null);
 
@@ -34,13 +36,15 @@ const AddNewUser = ({ onCancel, onSuccess }) => {
             duration: 800,
             once: true,
         });
-    }, []);    // Form state
+    }, []);
+
+    // Form state - improved with additional fields
     const [formData, setFormData] = useState({
         firstName: "",
         lastName: "",
         email: "",
         phone: "",
-        role: "dosen", // default role
+        role: "dosen",
         department: "",
         faculty: "",
         position: "",
@@ -56,14 +60,15 @@ const AddNewUser = ({ onCancel, onSuccess }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [formStep, setFormStep] = useState(1);
     const [passwordStrength, setPasswordStrength] = useState(0);
-    // Track whether fields have been touched
     const [touched, setTouched] = useState({});
 
-    // Handle field blur - mark field as touched
+    // Handle field blur
     const handleBlur = (e) => {
         const { name } = e.target;
         setTouched({ ...touched, [name]: true });
-    };    // Department options - expanded list
+    };
+
+    // Enhanced department options
     const departments = [
         "Teknik Informatika",
         "Sistem Informasi",
@@ -121,11 +126,8 @@ const AddNewUser = ({ onCancel, onSuccess }) => {
         if (!password) return 0;
         let score = 0;
 
-        // Length check
         if (password.length >= 8) score += 1;
         if (password.length >= 12) score += 1;
-
-        // Character variety check
         if (/[A-Z]/.test(password)) score += 1;
         if (/[a-z]/.test(password)) score += 1;
         if (/[0-9]/.test(password)) score += 1;
@@ -152,11 +154,10 @@ const AddNewUser = ({ onCancel, onSuccess }) => {
         };
     };
 
-    // Validate form
+    // Enhanced validation
     const validateForm = () => {
         const newErrors = {};
 
-        // First step validation
         if (formStep === 1) {
             if (!formData.firstName.trim()) newErrors.firstName = "First name is required";
             if (!formData.lastName.trim()) newErrors.lastName = "Last name is required";
@@ -165,7 +166,8 @@ const AddNewUser = ({ onCancel, onSuccess }) => {
             if (!formData.phone.trim()) newErrors.phone = "Phone number is required";
             else if (!/^\d{10,15}$/.test(formData.phone.replace(/\D/g, '')))
                 newErrors.phone = "Phone number is invalid";
-        }        // Second step validation
+        }
+
         if (formStep === 2) {
             if (!formData.department) newErrors.department = "Department is required";
             if (!formData.faculty) newErrors.faculty = "Faculty is required";
@@ -192,20 +194,22 @@ const AddNewUser = ({ onCancel, onSuccess }) => {
 
     const prevStep = () => {
         setFormStep(1);
-    };    // Handle form submission
+    };
+
+    // Handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         if (!validateForm()) return;
 
         setIsSubmitting(true);
-        setErrors({}); // Clear previous errors
+        setErrors({});
 
         try {
-            // Prepare user data for API
             const userData = {
-                username: formData.email.split('@')[0], // Use email prefix as username
-                password: formData.password, email: formData.email,
+                username: formData.email.split('@')[0],
+                password: formData.password,
+                email: formData.email,
                 full_name: `${formData.firstName} ${formData.lastName}`,
                 role: formData.role,
                 department: formData.department,
@@ -214,10 +218,10 @@ const AddNewUser = ({ onCancel, onSuccess }) => {
                 status: formData.status
             };
 
-            // Call the onSuccess handler (which calls API)
             if (onSuccess) {
-                const result = await onSuccess(userData); if (result.success) {
-                    // Reset form after successful creation
+                const result = await onSuccess(userData);
+
+                if (result.success) {
                     setFormData({
                         firstName: "",
                         lastName: "",
@@ -234,7 +238,6 @@ const AddNewUser = ({ onCancel, onSuccess }) => {
                     });
                     setFormStep(1);
                 } else {
-                    // Handle API errors
                     setErrors({ submit: result.message || 'Failed to create user' });
                 }
             }
@@ -263,7 +266,7 @@ const AddNewUser = ({ onCancel, onSuccess }) => {
         setPasswordStrength(calculatePasswordStrength(password));
     };
 
-    // Role details with enhanced visuals and improved text contrast
+    // Enhanced role details
     const roleDetails = {
         admin: {
             icon: <MdAdminPanelSettings className="h-7 w-7" />,
@@ -282,14 +285,14 @@ const AddNewUser = ({ onCancel, onSuccess }) => {
             icon: <MdSchool className="h-7 w-7" />,
             title: "Dosen",
             description: "Create and manage course proposals",
-            color: "from-yellow-400 to-blue-500", // Brighter blue gradient
-            hoverColor: "hover:from-sky-500 hover:to-blue-600",
-            shadowColor: "shadow-blue-200/50",
-            lightBg: "bg-sky-50",
-            textColor: "text-sky-700",
-            borderColor: "border-sky-200",
-            selectedTextColor: "text-sky-50",
-            selectedIconBg: "bg-sky-200/30"
+            color: "from-emerald-400 to-cyan-500",
+            hoverColor: "hover:from-emerald-500 hover:to-cyan-600",
+            shadowColor: "shadow-emerald-200/50",
+            lightBg: "bg-emerald-50",
+            textColor: "text-emerald-700",
+            borderColor: "border-emerald-200",
+            selectedTextColor: "text-emerald-50",
+            selectedIconBg: "bg-emerald-200/30"
         },
         reviewer: {
             icon: <MdSupervisorAccount className="h-7 w-7" />,
@@ -308,18 +311,18 @@ const AddNewUser = ({ onCancel, onSuccess }) => {
             icon: <MdWorkspaces className="h-7 w-7" />,
             title: "Wadir",
             description: "Oversee process and make final decisions",
-            color: "from-green-400 to-purple-500", // Brighter purple gradient
-            hoverColor: "hover:from-fuchsia-500 hover:to-purple-600",
-            shadowColor: "shadow-purple-200/50",
-            lightBg: "bg-fuchsia-50",
-            textColor: "text-fuchsia-700",
-            borderColor: "border-fuchsia-200",
-            selectedTextColor: "text-fuchsia-50",
-            selectedIconBg: "bg-fuchsia-200/30"
+            color: "from-rose-400 to-pink-500",
+            hoverColor: "hover:from-rose-500 hover:to-pink-600",
+            shadowColor: "shadow-rose-200/50",
+            lightBg: "bg-rose-50",
+            textColor: "text-rose-700",
+            borderColor: "border-rose-200",
+            selectedTextColor: "text-rose-50",
+            selectedIconBg: "bg-rose-200/30"
         }
     };
 
-    // Input field styling with floating label effect
+    // Styling classes
     const formFieldClass = (error, touched) => `
         group relative rounded-lg border ${error && touched
             ? 'border-red-400 ring-1 ring-red-400'
@@ -340,7 +343,6 @@ const AddNewUser = ({ onCancel, onSuccess }) => {
         text-gray-500 group-focus-within:text-indigo-600
     `;
 
-    // Enhance checkbox toggle styles
     const toggleClass = {
         container: `relative inline-flex h-6 w-11 items-center rounded-full transition-colors ease-in-out duration-300`,
         active: `bg-indigo-600`,
@@ -350,7 +352,6 @@ const AddNewUser = ({ onCancel, onSuccess }) => {
         inactivePosition: `translate-x-1`
     };
 
-    // Button styles for better consistency
     const buttonStyles = {
         primary: `flex items-center justify-center px-6 py-3 rounded-xl font-medium bg-gradient-to-r from-indigo-500 to-purple-600 
                   text-white transition-all duration-300 shadow-md 
@@ -364,45 +365,45 @@ const AddNewUser = ({ onCancel, onSuccess }) => {
 
     return (
         <div className="w-full max-w-4xl mx-auto" data-aos="fade-up">
-            <div className="relative bg-white rounded-xl shadow-xl overflow-hidden border border-gray-100">
-                {/* Glass morphism background effects */}
+            <div className="relative bg-white rounded-xl shadow-2xl overflow-hidden border border-gray-100">
+                {/* Background effects */}
                 <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-full opacity-50 blur-2xl -mr-32 -mt-32 z-0"></div>
                 <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-emerald-100 to-blue-100 rounded-full opacity-50 blur-2xl -ml-32 -mb-32 z-0"></div>
 
-                {/* Content container with proper padding */}
+                {/* Content container */}
                 <div className="relative z-10 p-8">
-                    {/* Header with enhanced styling */}
+                    {/* Enhanced Header */}
                     <div className="mb-8">
-                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-gray-200 pb-5">
+                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-gray-200 pb-6">
                             <div data-aos="fade-right" data-aos-delay="100">
-                                <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">
+                                <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600 mb-2">
                                     {formStep === 1 ? "Add New User" : "Configure Access & Security"}
                                 </h2>
-                                <p className="text-gray-600 mt-1">
+                                <p className="text-gray-600">
                                     {formStep === 1 ? "Create a new account by entering user details" : "Set permissions and security preferences"}
                                 </p>
                             </div>
 
                             {/* Improved progress indicator */}
-                            <div className="flex flex-col items-center mt-4 md:mt-0" data-aos="fade-left" data-aos-delay="150">
+                            <div className="flex flex-col items-center mt-6 md:mt-0" data-aos="fade-left" data-aos-delay="150">
                                 <div className="flex items-center">
                                     <div className="relative flex items-center">
-                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center z-10 text-white font-medium
-                                            ${formStep >= 1 ? 'bg-indigo-600' : 'bg-gray-300'}`}>
+                                        <div className={`w-12 h-12 rounded-full flex items-center justify-center z-10 text-white font-semibold transition-all duration-300
+                                            ${formStep >= 1 ? 'bg-gradient-to-r from-indigo-500 to-purple-600 shadow-lg' : 'bg-gray-300'}`}>
                                             1
                                         </div>
-                                        <div className={`w-16 h-1 ${formStep > 1 ? 'bg-indigo-600' : 'bg-gray-200'}`}></div>
-                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center z-10 font-medium
-                                            ${formStep >= 2 ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-500'}`}>
+                                        <div className={`w-20 h-1 transition-all duration-500 ${formStep > 1 ? 'bg-gradient-to-r from-indigo-500 to-purple-600' : 'bg-gray-200'}`}></div>
+                                        <div className={`w-12 h-12 rounded-full flex items-center justify-center z-10 font-semibold transition-all duration-300
+                                            ${formStep >= 2 ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg' : 'bg-gray-200 text-gray-500'}`}>
                                             2
                                         </div>
                                     </div>
                                 </div>
-                                <div className="flex w-full justify-between text-xs mt-1 px-1">
-                                    <span className={`text-center ${formStep >= 1 ? 'text-indigo-600 font-medium' : 'text-gray-500'}`}>
+                                <div className="flex w-full justify-between text-xs mt-2 px-2">
+                                    <span className={`text-center font-medium ${formStep >= 1 ? 'text-indigo-600' : 'text-gray-500'}`}>
                                         Personal Info
                                     </span>
-                                    <span className={`text-center ${formStep >= 2 ? 'text-indigo-600 font-medium' : 'text-gray-500'}`}>
+                                    <span className={`text-center font-medium ${formStep >= 2 ? 'text-indigo-600' : 'text-gray-500'}`}>
                                         Access & Security
                                     </span>
                                 </div>
@@ -410,19 +411,19 @@ const AddNewUser = ({ onCancel, onSuccess }) => {
                         </div>
                     </div>
 
-                    <form onSubmit={handleSubmit} className="relative z-10" ref={personalFormRef}>
+                    <form onSubmit={handleSubmit} className="relative z-10">
                         {/* Step 1: Personal Information */}
                         {formStep === 1 && (
                             <div className="space-y-8" data-aos="fade-up" data-aos-delay="200">
                                 {/* Personal Information Section */}
-                                <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-                                    <h3 className="text-lg font-semibold text-gray-800 mb-5 flex items-center">
+                                <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl p-6 shadow-sm border border-gray-100">
+                                    <h3 className="text-lg font-semibold text-gray-800 mb-6 flex items-center">
                                         <MdPersonAdd className="mr-2 text-indigo-600" size={20} />
                                         Personal Information
                                     </h3>
 
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
-                                        {/* First Name Input - fixed positioning */}
+                                        {/* First Name */}
                                         <div className={formFieldClass(errors.firstName, touched.firstName)}>
                                             <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-indigo-600 z-10 pointer-events-none">
                                                 <MdPersonAdd size={18} />
@@ -436,20 +437,18 @@ const AddNewUser = ({ onCancel, onSuccess }) => {
                                                 onBlur={handleBlur}
                                                 className={`${inputClass(errors.firstName)} pl-10`}
                                                 placeholder=""
-                                                aria-invalid={errors.firstName ? "true" : "false"}
-                                                aria-describedby={errors.firstName ? "firstName-error" : undefined}
                                             />
                                             <label htmlFor="firstName" className={labelClass}>
                                                 First Name *
                                             </label>
                                             {errors.firstName && touched.firstName && (
-                                                <p className="text-sm text-red-500 absolute -bottom-5 left-1" id="firstName-error">
+                                                <p className="text-sm text-red-500 absolute -bottom-5 left-1">
                                                     {errors.firstName}
                                                 </p>
                                             )}
                                         </div>
 
-                                        {/* Last Name Input */}
+                                        {/* Last Name */}
                                         <div className={formFieldClass(errors.lastName, touched.lastName)}>
                                             <input
                                                 type="text"
@@ -460,20 +459,18 @@ const AddNewUser = ({ onCancel, onSuccess }) => {
                                                 onBlur={handleBlur}
                                                 className={inputClass(errors.lastName)}
                                                 placeholder=""
-                                                aria-invalid={errors.lastName ? "true" : "false"}
-                                                aria-describedby={errors.lastName ? "lastName-error" : undefined}
                                             />
                                             <label htmlFor="lastName" className={labelClass}>
                                                 Last Name *
                                             </label>
                                             {errors.lastName && touched.lastName && (
-                                                <p className="text-sm text-red-500 absolute -bottom-5 left-1" id="lastName-error">
+                                                <p className="text-sm text-red-500 absolute -bottom-5 left-1">
                                                     {errors.lastName}
                                                 </p>
                                             )}
                                         </div>
 
-                                        {/* Email Input */}
+                                        {/* Email */}
                                         <div className={formFieldClass(errors.email, touched.email)}>
                                             <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-indigo-600 z-10 pointer-events-none">
                                                 <MdEmail size={18} />
@@ -487,20 +484,18 @@ const AddNewUser = ({ onCancel, onSuccess }) => {
                                                 onBlur={handleBlur}
                                                 className={`${inputClass(errors.email)} pl-10`}
                                                 placeholder=""
-                                                aria-invalid={errors.email ? "true" : "false"}
-                                                aria-describedby={errors.email ? "email-error" : undefined}
                                             />
                                             <label htmlFor="email" className={labelClass}>
                                                 Email Address *
                                             </label>
                                             {errors.email && touched.email && (
-                                                <p className="text-sm text-red-500 absolute -bottom-5 left-1" id="email-error">
+                                                <p className="text-sm text-red-500 absolute -bottom-5 left-1">
                                                     {errors.email}
                                                 </p>
                                             )}
                                         </div>
 
-                                        {/* Phone Input */}
+                                        {/* Phone */}
                                         <div className={formFieldClass(errors.phone, touched.phone)}>
                                             <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-indigo-600 z-10 pointer-events-none">
                                                 <MdPhone size={18} />
@@ -514,14 +509,12 @@ const AddNewUser = ({ onCancel, onSuccess }) => {
                                                 onBlur={handleBlur}
                                                 className={`${inputClass(errors.phone)} pl-10`}
                                                 placeholder=""
-                                                aria-invalid={errors.phone ? "true" : "false"}
-                                                aria-describedby={errors.phone ? "phone-error" : undefined}
                                             />
                                             <label htmlFor="phone" className={labelClass}>
                                                 Phone Number *
                                             </label>
                                             {errors.phone && touched.phone && (
-                                                <p className="text-sm text-red-500 absolute -bottom-5 left-1" id="phone-error">
+                                                <p className="text-sm text-red-500 absolute -bottom-5 left-1">
                                                     {errors.phone}
                                                 </p>
                                             )}
@@ -529,9 +522,9 @@ const AddNewUser = ({ onCancel, onSuccess }) => {
                                     </div>
                                 </div>
 
-                                {/* Role Selection - Fixed height cards with more polished look */}
-                                <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-                                    <h3 className="text-lg font-semibold text-gray-800 mb-5 flex items-center">
+                                {/* Enhanced Role Selection */}
+                                <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl p-6 shadow-sm border border-gray-100">
+                                    <h3 className="text-lg font-semibold text-gray-800 mb-6 flex items-center">
                                         <MdBadge className="mr-2 text-indigo-600" size={20} />
                                         Role Assignment
                                     </h3>
@@ -542,30 +535,24 @@ const AddNewUser = ({ onCancel, onSuccess }) => {
                                                 key={role}
                                                 onClick={() => setFormData({ ...formData, role })}
                                                 className={`
-                                                    relative rounded-xl p-4 cursor-pointer transition-all duration-300 h-[170px] flex flex-col
+                                                    relative rounded-xl p-5 cursor-pointer transition-all duration-300 h-[180px] flex flex-col
                                                     ${formData.role === role
-                                                        ? `bg-gradient-to-br ${roleDetails[role].color} ${roleDetails[role].selectedTextColor} shadow-lg ${roleDetails[role].shadowColor}`
-                                                        : `bg-white border ${roleDetails[role].borderColor} hover:shadow-md ${roleDetails[role].hoverColor}`
+                                                        ? `bg-gradient-to-br ${roleDetails[role].color} ${roleDetails[role].selectedTextColor} shadow-xl ${roleDetails[role].shadowColor} transform scale-105`
+                                                        : `bg-white border-2 ${roleDetails[role].borderColor} hover:shadow-lg ${roleDetails[role].hoverColor} hover:border-opacity-60`
                                                     }
                                                 `}
                                                 role="radio"
                                                 aria-checked={formData.role === role}
                                                 tabIndex={0}
-                                                onKeyDown={(e) => {
-                                                    if (e.key === ' ' || e.key === 'Enter') {
-                                                        e.preventDefault();
-                                                        setFormData({ ...formData, role });
-                                                    }
-                                                }}
                                             >
                                                 {formData.role === role && (
-                                                    <div className="absolute top-2 right-2 bg-white rounded-full p-0.5 shadow-lg z-10">
-                                                        <MdCheck className="text-green-600" size={14} />
+                                                    <div className="absolute top-3 right-3 bg-white rounded-full p-1 shadow-lg z-10">
+                                                        <MdCheck className="text-green-600" size={16} />
                                                     </div>
                                                 )}
                                                 <div className="flex flex-col items-center text-center h-full justify-between">
                                                     <div className={`
-                                                        p-3 rounded-full mb-2
+                                                        p-3 rounded-full mb-3 transition-all duration-300
                                                         ${formData.role === role
                                                             ? roleDetails[role].selectedIconBg
                                                             : `${roleDetails[role].lightBg} ${roleDetails[role].textColor}`
@@ -573,15 +560,14 @@ const AddNewUser = ({ onCancel, onSuccess }) => {
                                                     `}>
                                                         {roleDetails[role].icon}
                                                     </div>
-                                                    <div>
-                                                        <h4 className="font-medium text-base mb-1">{roleDetails[role].title}</h4>
-                                                        <p className={`text-xs mb-2 ${formData.role === role ? 'text-white/90' : 'text-gray-500'}`}>
+                                                    <div className="flex-1 flex flex-col justify-center">
+                                                        <h4 className="font-semibold text-base mb-2">{roleDetails[role].title}</h4>
+                                                        <p className={`text-xs leading-relaxed ${formData.role === role ? 'text-white/90' : 'text-gray-500'}`}>
                                                             {roleDetails[role].description}
                                                         </p>
                                                     </div>
                                                 </div>
 
-                                                {/* Selection indicator at bottom of card */}
                                                 {formData.role === role && (
                                                     <div className="absolute bottom-0 left-0 w-full h-1 bg-white/40 rounded-b-xl"></div>
                                                 )}
@@ -591,14 +577,14 @@ const AddNewUser = ({ onCancel, onSuccess }) => {
                                 </div>
 
                                 {/* Action Buttons */}
-                                <div className="flex justify-end space-x-3 pt-4">
+                                <div className="flex justify-end space-x-3 pt-6">
                                     {onCancel && (
                                         <button
                                             type="button"
                                             onClick={onCancel}
                                             className={buttonStyles.secondary}
                                         >
-                                            <MdClose className="mr-1.5" /> Cancel
+                                            <MdClose className="mr-2" /> Cancel
                                         </button>
                                     )}
 
@@ -607,24 +593,57 @@ const AddNewUser = ({ onCancel, onSuccess }) => {
                                         onClick={nextStep}
                                         className={buttonStyles.primary}
                                     >
-                                        Continue <MdKeyboardTab className="ml-1.5" />
+                                        Continue <MdKeyboardTab className="ml-2" />
                                     </button>
                                 </div>
                             </div>
                         )}
 
-                        {/* Step 2: Access Settings - Enhanced with more consistent UI */}
+                        {/* Step 2: Access Settings */}
                         {formStep === 2 && (
-                            <div className="space-y-8" data-aos="fade-up" data-aos-delay="200" ref={securityFormRef}>
-                                {/* Department & Status Section */}
-                                <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-                                    <h3 className="text-lg font-semibold text-gray-800 mb-5 flex items-center">
-                                        <MdDomain className="mr-2 text-indigo-600" size={20} />
-                                        Department & Status
+                            <div className="space-y-8" data-aos="fade-up" data-aos-delay="200">
+                                {/* Organization Information */}
+                                <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl p-6 shadow-sm border border-gray-100">
+                                    <h3 className="text-lg font-semibold text-gray-800 mb-6 flex items-center">
+                                        <MdBusiness className="mr-2 text-indigo-600" size={20} />
+                                        Organization Information
                                     </h3>
 
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
-                                        {/* Department Selection - Fixed select styling */}
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        {/* Faculty */}
+                                        <div className={formFieldClass(errors.faculty, touched.faculty)}>
+                                            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-indigo-600 z-10 pointer-events-none">
+                                                <MdSchool size={18} />
+                                            </div>
+                                            <select
+                                                id="faculty"
+                                                name="faculty"
+                                                value={formData.faculty}
+                                                onChange={handleChange}
+                                                onBlur={handleBlur}
+                                                className={`${inputClass(errors.faculty)} pl-10 cursor-pointer appearance-none`}
+                                            >
+                                                <option value="" disabled></option>
+                                                {faculties.map((faculty) => (
+                                                    <option key={faculty} value={faculty}>{faculty}</option>
+                                                ))}
+                                            </select>
+                                            <label htmlFor="faculty" className={labelClass}>
+                                                Faculty *
+                                            </label>
+                                            <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                                                <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+                                                </svg>
+                                            </div>
+                                            {errors.faculty && touched.faculty && (
+                                                <p className="text-sm text-red-500 absolute -bottom-5 left-1">
+                                                    {errors.faculty}
+                                                </p>
+                                            )}
+                                        </div>
+
+                                        {/* Department */}
                                         <div className={formFieldClass(errors.department, touched.department)}>
                                             <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-indigo-600 z-10 pointer-events-none">
                                                 <MdDomain size={18} />
@@ -636,8 +655,6 @@ const AddNewUser = ({ onCancel, onSuccess }) => {
                                                 onChange={handleChange}
                                                 onBlur={handleBlur}
                                                 className={`${inputClass(errors.department)} pl-10 cursor-pointer appearance-none`}
-                                                aria-invalid={errors.department ? "true" : "false"}
-                                                aria-describedby={errors.department ? "department-error" : undefined}
                                             >
                                                 <option value="" disabled></option>
                                                 {departments.map((dept) => (
@@ -645,7 +662,7 @@ const AddNewUser = ({ onCancel, onSuccess }) => {
                                                 ))}
                                             </select>
                                             <label htmlFor="department" className={labelClass}>
-                                                Department/Division *
+                                                Department/Program *
                                             </label>
                                             <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
                                                 <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -653,33 +670,50 @@ const AddNewUser = ({ onCancel, onSuccess }) => {
                                                 </svg>
                                             </div>
                                             {errors.department && touched.department && (
-                                                <p className="text-sm text-red-500 absolute -bottom-5 left-1" id="department-error">
+                                                <p className="text-sm text-red-500 absolute -bottom-5 left-1">
                                                     {errors.department}
                                                 </p>
                                             )}
                                         </div>
 
-                                        {/* Account Status - Enhanced Radio Card Style with consistent heights */}
+                                        {/* Position */}
+                                        <div className={formFieldClass(errors.position, touched.position)}>
+                                            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-indigo-600 z-10 pointer-events-none">
+                                                <MdWork size={18} />
+                                            </div>
+                                            <input
+                                                type="text"
+                                                id="position"
+                                                name="position"
+                                                value={formData.position}
+                                                onChange={handleChange}
+                                                onBlur={handleBlur}
+                                                className={`${inputClass(errors.position)} pl-10`}
+                                                placeholder=""
+                                            />
+                                            <label htmlFor="position" className={labelClass}>
+                                                Position/Title
+                                            </label>
+                                        </div>
+
+                                        {/* Account Status */}
                                         <div className="mb-6">
                                             <label className="block text-sm font-medium text-gray-700 mb-3">
                                                 Account Status
                                             </label>
                                             <div className="grid grid-cols-2 gap-4">
-                                                <label
-                                                    className={`
-                                                        flex items-center p-4 cursor-pointer rounded-lg border transition-all duration-200 h-[60px]
-                                                        ${formData.status === 'active'
-                                                            ? 'border-green-500 bg-green-50 text-green-700 shadow'
-                                                            : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-                                                        }
-                                                    `}
-                                                >
+                                                <label className={`
+                                                    flex items-center p-4 cursor-pointer rounded-lg border transition-all duration-200 h-[70px]
+                                                    ${formData.status === 'active'
+                                                        ? 'border-green-500 bg-green-50 text-green-700 shadow-md'
+                                                        : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                                                    }
+                                                `}>
                                                     <div className="relative flex items-center justify-center mr-3 w-5 h-5">
                                                         <input
                                                             type="radio"
                                                             name="status"
                                                             value="active"
-                                                            id="status-active"
                                                             checked={formData.status === "active"}
                                                             onChange={handleChange}
                                                             className="sr-only"
@@ -697,21 +731,18 @@ const AddNewUser = ({ onCancel, onSuccess }) => {
                                                     </div>
                                                 </label>
 
-                                                <label
-                                                    className={`
-                                                        flex items-center p-4 cursor-pointer rounded-lg border transition-all duration-200 h-[60px]
-                                                        ${formData.status === 'inactive'
-                                                            ? 'border-gray-500 bg-gray-50 text-gray-700 shadow'
-                                                            : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-                                                        }
-                                                    `}
-                                                >
+                                                <label className={`
+                                                    flex items-center p-4 cursor-pointer rounded-lg border transition-all duration-200 h-[70px]
+                                                    ${formData.status === 'inactive'
+                                                        ? 'border-gray-500 bg-gray-50 text-gray-700 shadow-md'
+                                                        : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                                                    }
+                                                `}>
                                                     <div className="relative flex items-center justify-center mr-3 w-5 h-5">
                                                         <input
                                                             type="radio"
                                                             name="status"
                                                             value="inactive"
-                                                            id="status-inactive"
                                                             checked={formData.status === "inactive"}
                                                             onChange={handleChange}
                                                             className="sr-only"
@@ -733,132 +764,127 @@ const AddNewUser = ({ onCancel, onSuccess }) => {
                                     </div>
                                 </div>
 
-                                {/* Password Section - Improved layout */}
-                                <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-                                    <h3 className="text-lg font-semibold text-gray-800 mb-5 flex items-center">
+                                {/* Security Settings */}
+                                <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl p-6 shadow-sm border border-gray-100">
+                                    <h3 className="text-lg font-semibold text-gray-800 mb-6 flex items-center">
                                         <MdLock className="mr-2 text-indigo-600" size={20} />
                                         Security Settings
                                     </h3>
 
-                                    <div>
-                                        <div className="flex justify-between items-center mb-3">
-                                            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                                    <div className="space-y-6">
+                                        <div className="flex justify-between items-center mb-4">
+                                            <label className="block text-sm font-medium text-gray-700">
                                                 Password *
                                             </label>
                                             <button
                                                 type="button"
                                                 onClick={generatePassword}
-                                                className="text-xs bg-indigo-50 text-indigo-600 hover:bg-indigo-100 px-3 py-1.5 rounded-full flex items-center transition-colors"
+                                                className="text-xs bg-indigo-50 text-indigo-600 hover:bg-indigo-100 px-4 py-2 rounded-full flex items-center transition-colors font-medium"
                                             >
-                                                <MdRefresh className="mr-1" size={14} /> Generate Password
+                                                <MdRefresh className="mr-1" size={14} /> Generate Strong Password
                                             </button>
                                         </div>
 
-                                        <div className="space-y-6">
-                                            {/* Password field - Fixed positioning */}
-                                            <div className={formFieldClass(errors.password, touched.password)}>
-                                                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-indigo-600 z-10 pointer-events-none">
-                                                    <MdLock size={18} />
-                                                </div>
-                                                <input
-                                                    type={showPassword ? "text" : "password"}
-                                                    id="password"
-                                                    name="password"
-                                                    value={formData.password}
-                                                    onChange={handleChange}
-                                                    onBlur={handleBlur}
-                                                    className={`${inputClass(errors.password)} pl-10`}
-                                                    placeholder=""
-                                                    aria-invalid={errors.password ? "true" : "false"}
-                                                    aria-describedby={errors.password ? "password-error" : undefined}
-                                                />
-                                                <button
-                                                    type="button"
-                                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
-                                                    onClick={() => setShowPassword(!showPassword)}
-                                                    aria-label={showPassword ? "Hide password" : "Show password"}
-                                                >
-                                                    {showPassword ? (
-                                                        <MdVisibilityOff size={18} />
-                                                    ) : (
-                                                        <MdVisibility size={18} />
-                                                    )}
-                                                </button>
-                                                {errors.password && touched.password && (
-                                                    <p className="text-sm text-red-500 absolute -bottom-5 left-1" id="password-error">
-                                                        {errors.password}
-                                                    </p>
-                                                )}
+                                        {/* Password */}
+                                        <div className={formFieldClass(errors.password, touched.password)}>
+                                            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-indigo-600 z-10 pointer-events-none">
+                                                <MdLock size={18} />
                                             </div>
-
-                                            {/* Password strength meter - Enhanced with proper spacing */}
-                                            {formData.password && (
-                                                <div className="mt-1 px-1 mb-8">
-                                                    <div className="h-1.5 w-full bg-gray-200 rounded-full overflow-hidden">
-                                                        <div
-                                                            className={`h-full rounded-full bg-gradient-to-r ${getPasswordStrengthProps().color} transition-all duration-500`}
-                                                            style={{ width: `${getPasswordStrengthProps().percent}%` }}
-                                                        ></div>
-                                                    </div>
-                                                    <div className="flex justify-between items-center mt-1">
-                                                        <p className="text-xs text-gray-500">
-                                                            Strength: <span className="font-medium">{getPasswordStrengthProps().label}</span>
-                                                        </p>
-                                                        {passwordStrength < 3 && formData.password && (
-                                                            <p className="text-xs text-amber-600">Add numbers, symbols & mixed case</p>
-                                                        )}
-                                                    </div>
-                                                </div>
+                                            <input
+                                                type={showPassword ? "text" : "password"}
+                                                id="password"
+                                                name="password"
+                                                value={formData.password}
+                                                onChange={handleChange}
+                                                onBlur={handleBlur}
+                                                className={`${inputClass(errors.password)} pl-10 pr-12`}
+                                                placeholder=""
+                                            />
+                                            <label htmlFor="password" className={labelClass}>
+                                                Password *
+                                            </label>
+                                            <button
+                                                type="button"
+                                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+                                                onClick={() => setShowPassword(!showPassword)}
+                                            >
+                                                {showPassword ? <MdVisibilityOff size={18} /> : <MdVisibility size={18} />}
+                                            </button>
+                                            {errors.password && touched.password && (
+                                                <p className="text-sm text-red-500 absolute -bottom-5 left-1">
+                                                    {errors.password}
+                                                </p>
                                             )}
+                                        </div>
 
-                                            {/* Confirm Password field */}
-                                            <div className={formFieldClass(errors.confirmPassword, touched.confirmPassword)}>
-                                                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-indigo-600 z-10 pointer-events-none">
-                                                    <MdLock size={18} />
+                                        {/* Password strength meter */}
+                                        {formData.password && (
+                                            <div className="px-1 mb-6">
+                                                <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
+                                                    <div
+                                                        className={`h-full rounded-full bg-gradient-to-r ${getPasswordStrengthProps().color} transition-all duration-500`}
+                                                        style={{ width: `${getPasswordStrengthProps().percent}%` }}
+                                                    ></div>
                                                 </div>
-                                                <input
-                                                    type={showPassword ? "text" : "password"}
-                                                    id="confirmPassword"
-                                                    name="confirmPassword"
-                                                    value={formData.confirmPassword}
-                                                    onChange={handleChange}
-                                                    onBlur={handleBlur}
-                                                    className={`${inputClass(errors.confirmPassword)} pl-10`}
-                                                    placeholder=""
-                                                    aria-invalid={errors.confirmPassword ? "true" : "false"}
-                                                    aria-describedby={errors.confirmPassword ? "confirmPassword-error" : undefined}
-                                                />
-                                                {errors.confirmPassword && touched.confirmPassword && (
-                                                    <p className="text-sm text-red-500 absolute -bottom-5 left-1" id="confirmPassword-error">
-                                                        {errors.confirmPassword}
+                                                <div className="flex justify-between items-center mt-2">
+                                                    <p className="text-xs text-gray-600">
+                                                        Strength: <span className="font-semibold">{getPasswordStrengthProps().label}</span>
                                                     </p>
-                                                )}
+                                                    {passwordStrength < 3 && formData.password && (
+                                                        <p className="text-xs text-amber-600 font-medium">Include uppercase, lowercase, numbers & symbols</p>
+                                                    )}
+                                                </div>
                                             </div>
+                                        )}
 
-                                            {/* Email credentials option - Fixed toggle switch */}
-                                            <div className="flex items-center mt-8 pt-4 border-t border-gray-100">
-                                                <label htmlFor="sendCredentials" className="flex items-center cursor-pointer">
-                                                    <div className="relative mr-3">
-                                                        <input
-                                                            type="checkbox"
-                                                            id="sendCredentials"
-                                                            name="sendCredentials"
-                                                            checked={formData.sendCredentials}
-                                                            onChange={handleChange}
-                                                            className="sr-only"
-                                                        />
-                                                        <div className={`${toggleClass.container} ${formData.sendCredentials ? toggleClass.active : toggleClass.inactive}`}>
-                                                            <div className={`${toggleClass.circle} ${formData.sendCredentials ? toggleClass.activePosition : toggleClass.inactivePosition}`}></div>
-                                                        </div>
-                                                    </div>
-                                                    <div className="flex items-center">
-                                                        <MdSend className={`mr-2 ${formData.sendCredentials ? 'text-indigo-600' : 'text-gray-400'}`} size={16} />
-                                                        <span className="text-sm text-gray-700">
-                                                            Send account credentials to user's email address
-                                                        </span>
-                                                    </div>
-                                                </label>
+                                        {/* Confirm Password */}
+                                        <div className={formFieldClass(errors.confirmPassword, touched.confirmPassword)}>
+                                            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-indigo-600 z-10 pointer-events-none">
+                                                <MdLock size={18} />
                                             </div>
+                                            <input
+                                                type={showPassword ? "text" : "password"}
+                                                id="confirmPassword"
+                                                name="confirmPassword"
+                                                value={formData.confirmPassword}
+                                                onChange={handleChange}
+                                                onBlur={handleBlur}
+                                                className={`${inputClass(errors.confirmPassword)} pl-10`}
+                                                placeholder=""
+                                            />
+                                            <label htmlFor="confirmPassword" className={labelClass}>
+                                                Confirm Password *
+                                            </label>
+                                            {errors.confirmPassword && touched.confirmPassword && (
+                                                <p className="text-sm text-red-500 absolute -bottom-5 left-1">
+                                                    {errors.confirmPassword}
+                                                </p>
+                                            )}
+                                        </div>
+
+                                        {/* Email credentials option */}
+                                        <div className="flex items-center mt-8 pt-6 border-t border-gray-200">
+                                            <label htmlFor="sendCredentials" className="flex items-center cursor-pointer">
+                                                <div className="relative mr-3">
+                                                    <input
+                                                        type="checkbox"
+                                                        id="sendCredentials"
+                                                        name="sendCredentials"
+                                                        checked={formData.sendCredentials}
+                                                        onChange={handleChange}
+                                                        className="sr-only"
+                                                    />
+                                                    <div className={`${toggleClass.container} ${formData.sendCredentials ? toggleClass.active : toggleClass.inactive}`}>
+                                                        <div className={`${toggleClass.circle} ${formData.sendCredentials ? toggleClass.activePosition : toggleClass.inactivePosition}`}></div>
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center">
+                                                    <MdSend className={`mr-2 ${formData.sendCredentials ? 'text-indigo-600' : 'text-gray-400'}`} size={16} />
+                                                    <span className="text-sm text-gray-700 font-medium">
+                                                        Send account credentials to user's email address
+                                                    </span>
+                                                </div>
+                                            </label>
                                         </div>
                                     </div>
                                 </div>
@@ -867,18 +893,18 @@ const AddNewUser = ({ onCancel, onSuccess }) => {
                                 {errors.submit && (
                                     <div className="p-4 bg-red-50 border border-red-200 text-red-600 rounded-lg flex items-center animate-pulse">
                                         <MdInfo className="mr-2 flex-shrink-0" size={20} />
-                                        <p>{errors.submit}</p>
+                                        <p className="font-medium">{errors.submit}</p>
                                     </div>
                                 )}
 
                                 {/* Form Actions */}
-                                <div className="flex justify-between pt-4">
+                                <div className="flex justify-between pt-6">
                                     <button
                                         type="button"
                                         onClick={prevStep}
                                         className={buttonStyles.secondary}
                                     >
-                                        <MdArrowBack className="mr-1.5" /> Back
+                                        <MdArrowBack className="mr-2" /> Back
                                     </button>
 
                                     <div className="flex space-x-3">
@@ -888,7 +914,7 @@ const AddNewUser = ({ onCancel, onSuccess }) => {
                                                 onClick={onCancel}
                                                 className={buttonStyles.secondary}
                                             >
-                                                <MdClose className="mr-1.5" /> Cancel
+                                                <MdClose className="mr-2" /> Cancel
                                             </button>
                                         )}
 
@@ -907,7 +933,7 @@ const AddNewUser = ({ onCancel, onSuccess }) => {
                                                 </>
                                             ) : (
                                                 <>
-                                                    <MdPersonAdd className="mr-1.5" size={20} /> Create User
+                                                    <MdPersonAdd className="mr-2" size={20} /> Create User
                                                 </>
                                             )}
                                         </button>

@@ -120,31 +120,45 @@ const User = db.define('users', {
     ],
     hooks: {
         beforeCreate: async (user) => {
-            if (user.password_hash) {
-                const hashedPassword = await argon2.hash(user.password_hash, {
-                    type: argon2.argon2id,
-                    memoryCost: 65536,
-                    timeCost: 3,
-                    parallelism: 4
-                });
-                user.password_hash = hashedPassword;
+            try {
+                if (user.password_hash) {
+                    console.log('Hashing password for new user:', user.username);
+                    const hashedPassword = await argon2.hash(user.password_hash, {
+                        type: argon2.argon2id,
+                        memoryCost: 65536,
+                        timeCost: 3,
+                        parallelism: 4
+                    });
+                    user.password_hash = hashedPassword;
+                }
+            } catch (error) {
+                console.error('Error hashing password in beforeCreate:', error);
+                throw error;
             }
         },
         beforeUpdate: async (user) => {
-            if (user.changed('password_hash')) {
-                const hashedPassword = await argon2.hash(user.password_hash, {
-                    type: argon2.argon2id,
-                    memoryCost: 65536,
-                    timeCost: 3,
-                    parallelism: 4
-                });
-                user.password_hash = hashedPassword;
+            try {
+                if (user.changed('password_hash')) {
+                    console.log('Hashing password for user update:', user.username);
+                    const hashedPassword = await argon2.hash(user.password_hash, {
+                        type: argon2.argon2id,
+                        memoryCost: 65536,
+                        timeCost: 3,
+                        parallelism: 4
+                    });
+                    user.password_hash = hashedPassword;
+                }
+            } catch (error) {
+                console.error('Error hashing password in beforeUpdate:', error);
+                throw error;
             }
         },
         afterCreate: (user) => {
+            console.log('User created successfully:', user.username);
             delete user.dataValues.password_hash;
         },
         afterUpdate: (user) => {
+            console.log('User updated successfully:', user.username);
             delete user.dataValues.password_hash;
         }
     }

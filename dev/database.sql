@@ -1,483 +1,614 @@
--- Database schema for SmartProposal Application
+-- phpMyAdmin SQL Dump
+-- version 5.2.1
+-- https://www.phpmyadmin.net/
+--
+-- Host: 127.0.0.1
+-- Waktu pembuatan: 15 Jun 2025 pada 15.01
+-- Versi server: 10.4.32-MariaDB
+-- Versi PHP: 8.2.12
 
--- Users and Authentication
-CREATE TABLE users (
-    id VARCHAR(36) PRIMARY KEY,
-    username VARCHAR(50) UNIQUE NOT NULL,
-    password_hash VARCHAR(255) NOT NULL,
-    email VARCHAR(100) UNIQUE NOT NULL,
-    full_name VARCHAR(100) NOT NULL,
-    role ENUM('admin', 'wadir', 'dosen', 'bendahara', 'reviewer') NOT NULL,
-    faculty VARCHAR(100),
-    department VARCHAR(100),
-    position VARCHAR(100),
-    profile_image VARCHAR(255),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    last_login TIMESTAMP NULL,
-    status ENUM('active', 'inactive') DEFAULT 'active'
-);
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+SET time_zone = "+00:00";
 
--- Sessions for proposal submissions
-CREATE TABLE sessions (
-    id VARCHAR(20) PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    description TEXT,
-    status ENUM('upcoming', 'active', 'closed') NOT NULL,
-    start_date DATETIME NOT NULL,
-    end_date DATETIME NOT NULL,
-    final_report_deadline DATETIME,
-    created_by VARCHAR(36),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    total_budget DECIMAL(15,2),
-    remaining_days INT,
-    FOREIGN KEY (created_by) REFERENCES users(id)
-);
 
--- Faculties/Departments
-CREATE TABLE departments (
-    id VARCHAR(36) PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    code VARCHAR(20) UNIQUE NOT NULL,
-    parent_id VARCHAR(36) NULL,
-    head_id VARCHAR(36),
-    contact_email VARCHAR(100),
-    contact_phone VARCHAR(20),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (head_id) REFERENCES users(id),
-    FOREIGN KEY (parent_id) REFERENCES departments(id)
-);
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
 
--- Proposals
-CREATE TABLE proposals (
-    id VARCHAR(20) PRIMARY KEY,
-    title VARCHAR(255) NOT NULL,
-    description TEXT NOT NULL,
-    user_id VARCHAR(36) NOT NULL,
-    session_id VARCHAR(20) NOT NULL,
-    department_id VARCHAR(36) NOT NULL,
-    status ENUM('draft', 'submitted', 'under_review', 'approved', 'rejected', 'revision_required') NOT NULL,
-    ml_score DECIMAL(5,2),
-    budget DECIMAL(15,2) NOT NULL,
-    type VARCHAR(50) NOT NULL,
-    priority ENUM('high', 'medium', 'low') NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    submitted_at DATETIME NULL,
-    deadline DATETIME NULL,
-    progress INT DEFAULT 0,
-    reject_reason TEXT NULL,
-    FOREIGN KEY (user_id) REFERENCES users(id),
-    FOREIGN KEY (session_id) REFERENCES sessions(id),
-    FOREIGN KEY (department_id) REFERENCES departments(id)
-);
+--
+-- Database: `sp`
+--
 
--- Proposal Details
-CREATE TABLE proposal_details (
-    proposal_id VARCHAR(20) PRIMARY KEY,
-    completeness DECIMAL(5,2) DEFAULT 0,
-    format DECIMAL(5,2) DEFAULT 0,
-    budget_validity DECIMAL(5,2) DEFAULT 0,
-    timeline_realism DECIMAL(5,2) DEFAULT 0,
-    innovation_score DECIMAL(5,2) DEFAULT 0,
-    feasibility_score DECIMAL(5,2) DEFAULT 0,
-    methodology_score DECIMAL(5,2) DEFAULT 0,
-    impact_score DECIMAL(5,2) DEFAULT 0,
-    sustainability_score DECIMAL(5,2) DEFAULT 0,
-    FOREIGN KEY (proposal_id) REFERENCES proposals(id) ON DELETE CASCADE
-);
+-- --------------------------------------------------------
 
--- Collaborators for proposals
-CREATE TABLE collaborators (
-    id VARCHAR(36) PRIMARY KEY,
-    proposal_id VARCHAR(20) NOT NULL,
-    name VARCHAR(100) NOT NULL,
-    role VARCHAR(50) NOT NULL,
-    email VARCHAR(100),
-    institution VARCHAR(100),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (proposal_id) REFERENCES proposals(id) ON DELETE CASCADE
-);
+--
+-- Struktur dari tabel `activity_logs`
+--
 
--- Document management
-CREATE TABLE documents (
-    id VARCHAR(36) PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    type VARCHAR(50) NOT NULL,
-    file_path VARCHAR(255) NOT NULL,
-    size VARCHAR(20) NOT NULL,
-    format VARCHAR(20) NOT NULL,
-    upload_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    status VARCHAR(50) DEFAULT 'pending',
-    notes TEXT,
-    entity_type ENUM('proposal', 'report', 'resource') NOT NULL,
-    entity_id VARCHAR(36) NOT NULL,
-    uploaded_by VARCHAR(36) NOT NULL,
-    FOREIGN KEY (uploaded_by) REFERENCES users(id)
-);
+CREATE TABLE `activity_logs` (
+  `id` varchar(36) NOT NULL,
+  `type` enum('proposal','system','document') NOT NULL,
+  `action` varchar(50) NOT NULL,
+  `user` varchar(100) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `timestamp` varchar(10) NOT NULL,
+  `date` varchar(20) NOT NULL,
+  `status` enum('success','warning','error','info') NOT NULL,
+  `details` text DEFAULT NULL,
+  `user_avatar` varchar(255) DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Reviews and validations
-CREATE TABLE reviews (
-    id VARCHAR(36) PRIMARY KEY,
-    proposal_id VARCHAR(20) NOT NULL,
-    reviewer_id VARCHAR(36) NOT NULL,
-    score DECIMAL(5,2),
-    comments TEXT,
-    recommendation ENUM('approve', 'reject', 'revise') NOT NULL,
-    review_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    status ENUM('pending', 'completed') DEFAULT 'pending',
-    FOREIGN KEY (proposal_id) REFERENCES proposals(id) ON DELETE CASCADE,
-    FOREIGN KEY (reviewer_id) REFERENCES users(id)
-);
+-- --------------------------------------------------------
 
--- ML validation metrics
-CREATE TABLE ml_validations (
-    id VARCHAR(36) PRIMARY KEY,
-    proposal_id VARCHAR(20) NOT NULL,
-    accuracy DECIMAL(5,2) NOT NULL,
-    precision_score DECIMAL(5,2) NOT NULL,
-    recall DECIMAL(5,2) NOT NULL,
-    f1_score DECIMAL(5,2) NOT NULL,
-    false_positive_rate DECIMAL(5,2),
-    false_negative_rate DECIMAL(5,2),
-    validation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    override_by VARCHAR(36) NULL,
-    override_reason TEXT NULL,
-    FOREIGN KEY (proposal_id) REFERENCES proposals(id) ON DELETE CASCADE,
-    FOREIGN KEY (override_by) REFERENCES users(id)
-);
+--
+-- Struktur dari tabel `budget_allocations`
+--
 
--- Budget allocations
-CREATE TABLE budget_allocations (
-    id VARCHAR(36) PRIMARY KEY,
-    session_id VARCHAR(20) NOT NULL,
-    department_id VARCHAR(36) NOT NULL,
-    amount DECIMAL(15,2) NOT NULL,
-    allocation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    allocated_by VARCHAR(36) NOT NULL,
-    status ENUM('planned', 'allocated', 'utilized') NOT NULL,
-    notes TEXT,
-    FOREIGN KEY (session_id) REFERENCES sessions(id),
-    FOREIGN KEY (department_id) REFERENCES departments(id),
-    FOREIGN KEY (allocated_by) REFERENCES users(id)
-);
+CREATE TABLE `budget_allocations` (
+  `id` varchar(36) NOT NULL,
+  `session_id` varchar(20) NOT NULL,
+  `department_id` varchar(36) NOT NULL,
+  `amount` decimal(15,2) NOT NULL,
+  `allocation_date` datetime DEFAULT NULL,
+  `allocated_by` varchar(36) NOT NULL,
+  `status` enum('planned','allocated','utilized') NOT NULL,
+  `notes` text DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Budget distributions by category
-CREATE TABLE budget_categories (
-    id VARCHAR(36) PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    code VARCHAR(20) UNIQUE NOT NULL,
-    description TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
+-- --------------------------------------------------------
 
--- Financial Reports
-CREATE TABLE financial_reports (
-    id VARCHAR(20) PRIMARY KEY,
-    proposal_id VARCHAR(20) NOT NULL,
-    title VARCHAR(255) NOT NULL,
-    report_type ENUM('monthly', 'quarterly', 'session', 'final', 'audit') NOT NULL,
-    period VARCHAR(50) NOT NULL,
-    submitted_by VARCHAR(36) NOT NULL,
-    submission_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    status ENUM('draft', 'submitted', 'verified', 'rejected') NOT NULL,
-    format VARCHAR(10) DEFAULT 'PDF',
-    verification_date TIMESTAMP NULL,
-    verified_by VARCHAR(36) NULL,
-    notes TEXT,
-    FOREIGN KEY (proposal_id) REFERENCES proposals(id) ON DELETE CASCADE,
-    FOREIGN KEY (submitted_by) REFERENCES users(id),
-    FOREIGN KEY (verified_by) REFERENCES users(id)
-);
+--
+-- Struktur dari tabel `budget_categories`
+--
 
--- Fund Utilization details
-CREATE TABLE fund_utilizations (
-    id VARCHAR(20) PRIMARY KEY,
-    proposal_id VARCHAR(20) NOT NULL,
-    title VARCHAR(255) NOT NULL,
-    researcher VARCHAR(100) NOT NULL,
-    faculty VARCHAR(100) NOT NULL,
-    category VARCHAR(50) NOT NULL,
-    submission_date DATE NOT NULL,
-    amount_used DECIMAL(15,2) NOT NULL,
-    total_allocated DECIMAL(15,2) NOT NULL,
-    status ENUM('Menunggu Verifikasi', 'Terverifikasi', 'Ditolak') NOT NULL,
-    notes TEXT,
-    rejection_reason TEXT NULL,
-    FOREIGN KEY (proposal_id) REFERENCES proposals(id) ON DELETE CASCADE
-);
+CREATE TABLE `budget_categories` (
+  `id` varchar(36) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `code` varchar(20) NOT NULL,
+  `description` text DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Final Reports
-CREATE TABLE final_reports (
-    id VARCHAR(36) PRIMARY KEY,
-    proposal_id VARCHAR(20) NOT NULL,
-    title VARCHAR(255) NOT NULL,
-    abstract TEXT NOT NULL,
-    introduction TEXT,
-    methodology TEXT,
-    results TEXT,
-    discussion TEXT,
-    conclusion TEXT,
-    references TEXT,
-    submission_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    status ENUM('draft', 'submitted', 'reviewed', 'approved', 'rejected') DEFAULT 'draft',
-    FOREIGN KEY (proposal_id) REFERENCES proposals(id) ON DELETE CASCADE
-);
+-- --------------------------------------------------------
 
--- Feedback for reports and proposals
-CREATE TABLE feedbacks (
-    id VARCHAR(36) PRIMARY KEY,
-    entity_type ENUM('proposal', 'report', 'final_report') NOT NULL,
-    entity_id VARCHAR(36) NOT NULL,
-    reviewer VARCHAR(100) NOT NULL,
-    section VARCHAR(50) NULL,
-    message TEXT NOT NULL,
-    date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    status ENUM('resolved', 'unresolved') DEFAULT 'unresolved',
-    response TEXT
-);
+--
+-- Struktur dari tabel `collaborators`
+--
 
--- Session statistics
-CREATE TABLE session_statistics (
-    id VARCHAR(36) PRIMARY KEY,
-    session_id VARCHAR(20) NOT NULL,
-    active_users INT DEFAULT 0,
-    total_sessions INT DEFAULT 0,
-    average_duration VARCHAR(10),
-    security_alerts INT DEFAULT 0,
-    FOREIGN KEY (session_id) REFERENCES sessions(id) ON DELETE CASCADE
-);
+CREATE TABLE `collaborators` (
+  `id` varchar(36) NOT NULL,
+  `proposal_id` varchar(20) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `role` varchar(50) NOT NULL,
+  `email` varchar(100) DEFAULT NULL,
+  `institution` varchar(100) DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Session device stats
-CREATE TABLE session_device_stats (
-    id VARCHAR(36) PRIMARY KEY,
-    session_id VARCHAR(20) NOT NULL,
-    desktop INT DEFAULT 0,
-    mobile INT DEFAULT 0,
-    tablet INT DEFAULT 0,
-    FOREIGN KEY (session_id) REFERENCES sessions(id) ON DELETE CASCADE
-);
+-- --------------------------------------------------------
 
--- Session browser stats
-CREATE TABLE session_browser_stats (
-    id VARCHAR(36) PRIMARY KEY,
-    session_id VARCHAR(20) NOT NULL,
-    chrome INT DEFAULT 0,
-    firefox INT DEFAULT 0,
-    safari INT DEFAULT 0,
-    edge INT DEFAULT 0,
-    FOREIGN KEY (session_id) REFERENCES sessions(id) ON DELETE CASCADE
-);
+--
+-- Struktur dari tabel `departments`
+--
 
--- Session location stats
-CREATE TABLE session_location_stats (
-    id VARCHAR(36) PRIMARY KEY,
-    session_id VARCHAR(20) NOT NULL,
-    city VARCHAR(50) NOT NULL,
-    count INT DEFAULT 0,
-    percentage DECIMAL(5,2) DEFAULT 0,
-    FOREIGN KEY (session_id) REFERENCES sessions(id) ON DELETE CASCADE
-);
+CREATE TABLE `departments` (
+  `id` varchar(36) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `code` varchar(20) NOT NULL,
+  `parent_id` varchar(36) DEFAULT NULL,
+  `head_id` varchar(36) DEFAULT NULL,
+  `contact_email` varchar(100) DEFAULT NULL,
+  `contact_phone` varchar(20) DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Session time distribution
-CREATE TABLE session_time_distribution (
-    id VARCHAR(36) PRIMARY KEY,
-    session_id VARCHAR(20) NOT NULL,
-    morning INT DEFAULT 0,
-    afternoon INT DEFAULT 0,
-    evening INT DEFAULT 0,
-    night INT DEFAULT 0,
-    FOREIGN KEY (session_id) REFERENCES sessions(id) ON DELETE CASCADE
-);
+-- --------------------------------------------------------
 
--- Session user roles
-CREATE TABLE session_user_roles (
-    id VARCHAR(36) PRIMARY KEY,
-    session_id VARCHAR(20) NOT NULL,
-    dosen INT DEFAULT 0,
-    mahasiswa INT DEFAULT 0,
-    admin INT DEFAULT 0,
-    reviewer INT DEFAULT 0,
-    lainnya INT DEFAULT 0,
-    FOREIGN KEY (session_id) REFERENCES sessions(id) ON DELETE CASCADE
-);
+--
+-- Struktur dari tabel `documents`
+--
 
--- Security issues
-CREATE TABLE security_issues (
-    id VARCHAR(36) PRIMARY KEY,
-    session_id VARCHAR(20) NOT NULL,
-    type VARCHAR(100) NOT NULL,
-    count INT DEFAULT 0,
-    severity ENUM('high', 'medium', 'low') NOT NULL,
-    FOREIGN KEY (session_id) REFERENCES sessions(id) ON DELETE CASCADE
-);
+CREATE TABLE `documents` (
+  `id` varchar(36) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `type` varchar(50) NOT NULL,
+  `file_path` varchar(255) NOT NULL,
+  `size` varchar(20) NOT NULL,
+  `format` varchar(20) NOT NULL,
+  `upload_date` datetime DEFAULT NULL,
+  `status` varchar(50) NOT NULL DEFAULT 'pending',
+  `notes` text DEFAULT NULL,
+  `entity_type` enum('proposal','report','resource') NOT NULL,
+  `entity_id` varchar(36) NOT NULL,
+  `uploaded_by` varchar(36) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Daily usage statistics
-CREATE TABLE daily_usage (
-    id VARCHAR(36) PRIMARY KEY,
-    session_id VARCHAR(20) NOT NULL,
-    time VARCHAR(5) NOT NULL,
-    sessions INT DEFAULT 0,
-    date DATE DEFAULT (CURRENT_DATE),
-    FOREIGN KEY (session_id) REFERENCES sessions(id) ON DELETE CASCADE
-);
+-- --------------------------------------------------------
 
--- Recent activities
-CREATE TABLE recent_activities (
-    id VARCHAR(36) PRIMARY KEY,
-    user VARCHAR(100) NOT NULL,
-    role VARCHAR(50) NOT NULL,
-    action VARCHAR(255) NOT NULL,
-    time VARCHAR(50) NOT NULL,
-    device VARCHAR(50) NOT NULL,
-    browser VARCHAR(50) NOT NULL,
-    location VARCHAR(100) NOT NULL,
-    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+--
+-- Struktur dari tabel `faq`
+--
 
--- Log activities
-CREATE TABLE activity_logs (
-    id VARCHAR(36) PRIMARY KEY,
-    type ENUM('proposal', 'system', 'document') NOT NULL,
-    action VARCHAR(50) NOT NULL,
-    user VARCHAR(100) NOT NULL,
-    title VARCHAR(255) NOT NULL,
-    timestamp VARCHAR(10) NOT NULL,
-    date VARCHAR(20) NOT NULL,
-    status ENUM('success', 'warning', 'error', 'info') NOT NULL,
-    details TEXT,
-    user_avatar VARCHAR(255),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+CREATE TABLE `faq` (
+  `id` int(11) NOT NULL,
+  `category` varchar(50) NOT NULL,
+  `question` text NOT NULL,
+  `answer` text NOT NULL,
+  `created_at` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Resources/Documentation
-CREATE TABLE resources (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    title VARCHAR(255) NOT NULL,
-    description TEXT NOT NULL,
-    category VARCHAR(50) NOT NULL,
-    download_url VARCHAR(255),
-    date VARCHAR(20) NOT NULL,
-    size VARCHAR(10) NOT NULL,
-    type VARCHAR(10) NOT NULL
-);
+-- --------------------------------------------------------
 
--- FAQ Database
-CREATE TABLE faq (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    category VARCHAR(50) NOT NULL,
-    question TEXT NOT NULL,
-    answer TEXT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+--
+-- Struktur dari tabel `feedbacks`
+--
 
--- Laporan Akhir (Final Report) Sessions
-CREATE TABLE laporan_akhir_sessions (
-    id VARCHAR(36) PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    status VARCHAR(50) NOT NULL,
-    start_date DATE NOT NULL,
-    end_date DATE NOT NULL,
-    duration VARCHAR(50),
-    completion_date DATETIME,
-    total_proposals INT,
-    approved INT,
-    rejected INT,
-    revised INT,
-    approval_rate DECIMAL(5,2),
-    average_score DECIMAL(5,2),
-    average_review_time VARCHAR(20),
-    total_budget VARCHAR(50),
-    allocated_budget VARCHAR(50)
-);
+CREATE TABLE `feedbacks` (
+  `id` varchar(36) NOT NULL,
+  `entity_type` enum('proposal','report','final_report') NOT NULL,
+  `entity_id` varchar(36) NOT NULL,
+  `reviewer` varchar(100) NOT NULL,
+  `section` varchar(50) DEFAULT NULL,
+  `message` text NOT NULL,
+  `date` datetime DEFAULT NULL,
+  `status` enum('resolved','unresolved') NOT NULL DEFAULT 'unresolved',
+  `response` text DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Evaluation Metrics
-CREATE TABLE evaluation_metrics (
-    id VARCHAR(36) PRIMARY KEY,
-    session_id VARCHAR(36) NOT NULL,
-    metric_name VARCHAR(50) NOT NULL,
-    value DECIMAL(5,2) NOT NULL,
-    change VARCHAR(10) NOT NULL,
-    FOREIGN KEY (session_id) REFERENCES laporan_akhir_sessions(id) ON DELETE CASCADE
-);
+-- --------------------------------------------------------
 
--- ML Performance Metrics
-CREATE TABLE ml_performance (
-    id VARCHAR(36) PRIMARY KEY,
-    session_id VARCHAR(36) NOT NULL,
-    accuracy DECIMAL(5,2) NOT NULL,
-    precision_score DECIMAL(5,2) NOT NULL,
-    recall DECIMAL(5,2) NOT NULL,
-    prediction_rate DECIMAL(5,2) NOT NULL,
-    manual_override_rate DECIMAL(5,2) NOT NULL,
-    time_reduction VARCHAR(10) NOT NULL,
-    comparison_to_last VARCHAR(10) NOT NULL,
-    FOREIGN KEY (session_id) REFERENCES laporan_akhir_sessions(id) ON DELETE CASCADE
-);
+--
+-- Struktur dari tabel `final_reports`
+--
 
--- Top Proposals
-CREATE TABLE top_proposals (
-    id VARCHAR(36) PRIMARY KEY,
-    session_id VARCHAR(36) NOT NULL,
-    proposal_id VARCHAR(20) NOT NULL,
-    title VARCHAR(255) NOT NULL,
-    department VARCHAR(100) NOT NULL,
-    pi VARCHAR(100) NOT NULL,
-    score DECIMAL(5,2) NOT NULL,
-    budget VARCHAR(50) NOT NULL,
-    status VARCHAR(50) NOT NULL,
-    FOREIGN KEY (session_id) REFERENCES laporan_akhir_sessions(id) ON DELETE CASCADE
-);
+CREATE TABLE `final_reports` (
+  `id` varchar(36) NOT NULL,
+  `proposal_id` varchar(20) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `abstract` text NOT NULL,
+  `introduction` text DEFAULT NULL,
+  `methodology` text DEFAULT NULL,
+  `results` text DEFAULT NULL,
+  `discussion` text DEFAULT NULL,
+  `conclusion` text DEFAULT NULL,
+  `references` text DEFAULT NULL,
+  `submission_date` datetime DEFAULT NULL,
+  `status` enum('draft','submitted','reviewed','approved','rejected') NOT NULL DEFAULT 'draft'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Budget Distribution
-CREATE TABLE budget_distribution (
-    id VARCHAR(36) PRIMARY KEY,
-    session_id VARCHAR(36) NOT NULL,
-    category VARCHAR(100) NOT NULL,
-    value DECIMAL(5,2) NOT NULL,
-    FOREIGN KEY (session_id) REFERENCES laporan_akhir_sessions(id) ON DELETE CASCADE
-);
+-- --------------------------------------------------------
 
--- Insights and Recommendations
-CREATE TABLE insights_recommendations (
-    id VARCHAR(36) PRIMARY KEY,
-    session_id VARCHAR(36) NOT NULL,
-    title VARCHAR(100) NOT NULL,
-    description TEXT NOT NULL,
-    impact ENUM('Tinggi', 'Medium', 'Rendah') NOT NULL,
-    status ENUM('new', 'implemented', 'pending') NOT NULL,
-    FOREIGN KEY (session_id) REFERENCES laporan_akhir_sessions(id) ON DELETE CASCADE
-);
+--
+-- Struktur dari tabel `financial_reports`
+--
 
--- Reports
-CREATE TABLE reports (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    title VARCHAR(255) NOT NULL,
-    category VARCHAR(50) NOT NULL,
-    date DATE NOT NULL,
-    status ENUM('completed', 'pending') NOT NULL,
-    department VARCHAR(100) NOT NULL,
-    download_count INT DEFAULT 0,
-    file_size VARCHAR(10) NOT NULL,
-    file_type VARCHAR(10) NOT NULL,
-    author VARCHAR(100) NOT NULL,
-    last_modified DATE NOT NULL
-);
+CREATE TABLE `financial_reports` (
+  `id` varchar(20) NOT NULL,
+  `proposal_id` varchar(20) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `report_type` enum('monthly','quarterly','session','final','audit') NOT NULL,
+  `period` varchar(50) NOT NULL,
+  `submitted_by` varchar(36) NOT NULL,
+  `submission_date` datetime DEFAULT NULL,
+  `status` enum('draft','submitted','verified','rejected') NOT NULL,
+  `format` varchar(10) NOT NULL DEFAULT 'PDF',
+  `verification_date` datetime DEFAULT NULL,
+  `verified_by` varchar(36) DEFAULT NULL,
+  `notes` text DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Indexes for improved query performance
-CREATE INDEX idx_proposals_user_id ON proposals(user_id);
-CREATE INDEX idx_proposals_session_id ON proposals(session_id);
-CREATE INDEX idx_proposals_status ON proposals(status);
-CREATE INDEX idx_proposals_type ON proposals(type);
-CREATE INDEX idx_financial_reports_proposal_id ON financial_reports(proposal_id);
-CREATE INDEX idx_financial_reports_status ON financial_reports(status);
-CREATE INDEX idx_fund_utilizations_status ON fund_utilizations(status);
-CREATE INDEX idx_reviews_proposal_id ON reviews(proposal_id);
-CREATE INDEX idx_reviews_reviewer_id ON reviews(reviewer_id);
-CREATE INDEX idx_faq_category ON faq(category);
-CREATE INDEX idx_documents_entity_id ON documents(entity_id);
-CREATE INDEX idx_documents_entity_type ON documents(entity_type);
-CREATE INDEX idx_activity_logs_type ON activity_logs(type);
+-- --------------------------------------------------------
+
+--
+-- Struktur dari tabel `fund_utilizations`
+--
+
+CREATE TABLE `fund_utilizations` (
+  `id` varchar(20) NOT NULL,
+  `proposal_id` varchar(20) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `researcher` varchar(100) NOT NULL,
+  `faculty` varchar(100) NOT NULL,
+  `category` varchar(50) NOT NULL,
+  `submission_date` date NOT NULL,
+  `amount_used` decimal(15,2) NOT NULL,
+  `total_allocated` decimal(15,2) NOT NULL,
+  `status` enum('Menunggu Verifikasi','Terverifikasi','Ditolak') NOT NULL,
+  `notes` text DEFAULT NULL,
+  `rejection_reason` text DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Struktur dari tabel `laporan_akhir_sessions`
+--
+
+CREATE TABLE `laporan_akhir_sessions` (
+  `id` varchar(36) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `status` varchar(50) NOT NULL,
+  `start_date` date NOT NULL,
+  `end_date` date NOT NULL,
+  `duration` varchar(50) DEFAULT NULL,
+  `completion_date` datetime DEFAULT NULL,
+  `total_proposals` int(11) DEFAULT NULL,
+  `approved` int(11) DEFAULT NULL,
+  `rejected` int(11) DEFAULT NULL,
+  `revised` int(11) DEFAULT NULL,
+  `approval_rate` decimal(5,2) DEFAULT NULL,
+  `average_score` decimal(5,2) DEFAULT NULL,
+  `average_review_time` varchar(20) DEFAULT NULL,
+  `total_budget` varchar(50) DEFAULT NULL,
+  `allocated_budget` varchar(50) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Struktur dari tabel `ml_validations`
+--
+
+CREATE TABLE `ml_validations` (
+  `id` varchar(36) NOT NULL,
+  `proposal_id` varchar(20) NOT NULL,
+  `accuracy` decimal(5,2) NOT NULL,
+  `precision_score` decimal(5,2) NOT NULL,
+  `recall` decimal(5,2) NOT NULL,
+  `f1_score` decimal(5,2) NOT NULL,
+  `false_positive_rate` decimal(5,2) DEFAULT NULL,
+  `false_negative_rate` decimal(5,2) DEFAULT NULL,
+  `validation_date` datetime DEFAULT NULL,
+  `override_by` varchar(36) DEFAULT NULL,
+  `override_reason` text DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Struktur dari tabel `proposals`
+--
+
+CREATE TABLE `proposals` (
+  `id` varchar(20) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `description` text NOT NULL,
+  `user_id` varchar(36) NOT NULL,
+  `session_id` varchar(20) NOT NULL,
+  `department_id` varchar(36) NOT NULL,
+  `status` enum('draft','submitted','under_review','approved','rejected','revision_required') NOT NULL,
+  `ml_score` decimal(5,2) DEFAULT NULL,
+  `budget` decimal(15,2) NOT NULL,
+  `type` varchar(50) NOT NULL,
+  `priority` enum('high','medium','low') NOT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  `submitted_at` datetime DEFAULT NULL,
+  `deadline` datetime DEFAULT NULL,
+  `progress` int(11) NOT NULL DEFAULT 0,
+  `reject_reason` text DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Struktur dari tabel `proposal_details`
+--
+
+CREATE TABLE `proposal_details` (
+  `proposal_id` varchar(20) NOT NULL,
+  `completeness` decimal(5,2) DEFAULT 0.00,
+  `format` decimal(5,2) DEFAULT 0.00,
+  `budget_validity` decimal(5,2) DEFAULT 0.00,
+  `timeline_realism` decimal(5,2) DEFAULT 0.00,
+  `innovation_score` decimal(5,2) DEFAULT 0.00,
+  `feasibility_score` decimal(5,2) DEFAULT 0.00,
+  `methodology_score` decimal(5,2) DEFAULT 0.00,
+  `impact_score` decimal(5,2) DEFAULT 0.00,
+  `sustainability_score` decimal(5,2) DEFAULT 0.00
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Struktur dari tabel `recent_activities`
+--
+
+CREATE TABLE `recent_activities` (
+  `id` varchar(36) NOT NULL,
+  `user` varchar(100) NOT NULL,
+  `role` varchar(50) NOT NULL,
+  `action` varchar(255) NOT NULL,
+  `time` varchar(50) NOT NULL,
+  `device` varchar(50) NOT NULL,
+  `browser` varchar(50) NOT NULL,
+  `location` varchar(100) NOT NULL,
+  `timestamp` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Struktur dari tabel `reports`
+--
+
+CREATE TABLE `reports` (
+  `id` int(11) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `category` varchar(50) NOT NULL,
+  `date` date NOT NULL,
+  `status` enum('completed','pending') NOT NULL,
+  `department` varchar(100) NOT NULL,
+  `download_count` int(11) NOT NULL DEFAULT 0,
+  `file_size` varchar(10) NOT NULL,
+  `file_type` varchar(10) NOT NULL,
+  `author` varchar(100) NOT NULL,
+  `last_modified` date NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Struktur dari tabel `resources`
+--
+
+CREATE TABLE `resources` (
+  `id` int(11) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `description` text NOT NULL,
+  `category` varchar(50) NOT NULL,
+  `download_url` varchar(255) DEFAULT NULL,
+  `date` varchar(20) NOT NULL,
+  `size` varchar(10) NOT NULL,
+  `type` varchar(10) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Struktur dari tabel `reviews`
+--
+
+CREATE TABLE `reviews` (
+  `id` varchar(36) NOT NULL,
+  `proposal_id` varchar(20) NOT NULL,
+  `reviewer_id` varchar(36) NOT NULL,
+  `score` decimal(5,2) DEFAULT NULL,
+  `comments` text DEFAULT NULL,
+  `recommendation` enum('approve','reject','revise') NOT NULL,
+  `review_date` datetime DEFAULT NULL,
+  `status` enum('pending','completed') NOT NULL DEFAULT 'pending'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Struktur dari tabel `sessions`
+--
+
+CREATE TABLE `sessions` (
+  `sid` varchar(36) NOT NULL,
+  `expires` datetime DEFAULT NULL,
+  `data` text DEFAULT NULL,
+  `createdAt` datetime NOT NULL,
+  `updatedAt` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data untuk tabel `sessions`
+--
+
+INSERT INTO `sessions` (`sid`, `expires`, `data`, `createdAt`, `updatedAt`) VALUES
+('qHID34ebR32uWfLSXs-wkFHFzKUjcbcD', '2025-06-15 17:52:13', '{\"cookie\":{\"originalMaxAge\":86400000,\"expires\":\"2025-06-15T16:12:09.820Z\",\"secure\":false,\"httpOnly\":true,\"path\":\"/\"},\"user_id\":\"4b0c4b5e-9c9e-4b1d-8d7a-8d7a8d7a8d7a\"}', '2025-06-14 15:52:53', '2025-06-14 17:52:13'),
+('W7-7kM3R2Dm-CiRq_XFxHm9S4pSJRCGK', '2025-06-16 12:34:11', '{\"cookie\":{\"originalMaxAge\":86400000,\"expires\":\"2025-06-15T18:23:12.158Z\",\"secure\":false,\"httpOnly\":true,\"path\":\"/\"},\"user_id\":\"4b0c4b5e-9c9e-4b1d-8d7a-8d7a8d7a8d7a\"}', '2025-06-14 18:19:32', '2025-06-15 12:34:11');
+
+-- --------------------------------------------------------
+
+--
+-- Struktur dari tabel `users`
+--
+
+CREATE TABLE `users` (
+  `user_id` varchar(255) NOT NULL,
+  `role` enum('admin','wadir','dosen','bendahara','reviewer') NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `status` enum('active','inactive') NOT NULL DEFAULT 'active',
+  `faculty` varchar(100) DEFAULT NULL,
+  `department` varchar(100) DEFAULT NULL,
+  `last_login` datetime DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  `username` varchar(50) NOT NULL,
+  `password_hash` varchar(255) NOT NULL,
+  `full_name` varchar(100) NOT NULL,
+  `position` varchar(100) DEFAULT NULL,
+  `profile_image` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data untuk tabel `users`
+--
+
+INSERT INTO `users` (`user_id`, `role`, `email`, `status`, `faculty`, `department`, `last_login`, `created_at`, `updated_at`, `username`, `password_hash`, `full_name`, `position`, `profile_image`) VALUES
+('4b0c4b5e-9c9e-4b1d-8d7a-8d7a8d7a8d7a', 'wadir', 'dandigeming85@gmail.com', 'active', NULL, NULL, NULL, '2025-06-14 11:40:13', '2025-06-14 11:40:13', 'dandigeming85', '$argon2id$v=19$m=65536,t=3,p=4$aWY4hbrcTqRzEk1VuBHlJg$EyNj61XJIAp0n2JgpioGkmSOQfasMFN4Pzo12ZuUYG8', 'Dandi Mamonto', NULL, NULL);
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indeks untuk tabel `activity_logs`
+--
+ALTER TABLE `activity_logs`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indeks untuk tabel `budget_allocations`
+--
+ALTER TABLE `budget_allocations`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indeks untuk tabel `budget_categories`
+--
+ALTER TABLE `budget_categories`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `code` (`code`);
+
+--
+-- Indeks untuk tabel `collaborators`
+--
+ALTER TABLE `collaborators`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indeks untuk tabel `departments`
+--
+ALTER TABLE `departments`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `code` (`code`),
+  ADD UNIQUE KEY `code_2` (`code`),
+  ADD UNIQUE KEY `code_3` (`code`),
+  ADD KEY `parent_id` (`parent_id`);
+
+--
+-- Indeks untuk tabel `documents`
+--
+ALTER TABLE `documents`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indeks untuk tabel `faq`
+--
+ALTER TABLE `faq`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indeks untuk tabel `feedbacks`
+--
+ALTER TABLE `feedbacks`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indeks untuk tabel `final_reports`
+--
+ALTER TABLE `final_reports`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indeks untuk tabel `financial_reports`
+--
+ALTER TABLE `financial_reports`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indeks untuk tabel `fund_utilizations`
+--
+ALTER TABLE `fund_utilizations`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indeks untuk tabel `laporan_akhir_sessions`
+--
+ALTER TABLE `laporan_akhir_sessions`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indeks untuk tabel `ml_validations`
+--
+ALTER TABLE `ml_validations`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indeks untuk tabel `proposals`
+--
+ALTER TABLE `proposals`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indeks untuk tabel `proposal_details`
+--
+ALTER TABLE `proposal_details`
+  ADD PRIMARY KEY (`proposal_id`);
+
+--
+-- Indeks untuk tabel `recent_activities`
+--
+ALTER TABLE `recent_activities`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indeks untuk tabel `reports`
+--
+ALTER TABLE `reports`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indeks untuk tabel `resources`
+--
+ALTER TABLE `resources`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indeks untuk tabel `reviews`
+--
+ALTER TABLE `reviews`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indeks untuk tabel `sessions`
+--
+ALTER TABLE `sessions`
+  ADD PRIMARY KEY (`sid`);
+
+--
+-- Indeks untuk tabel `users`
+--
+ALTER TABLE `users`
+  ADD PRIMARY KEY (`user_id`),
+  ADD UNIQUE KEY `idx_users_username` (`username`),
+  ADD UNIQUE KEY `idx_users_email` (`email`),
+  ADD UNIQUE KEY `email` (`email`),
+  ADD UNIQUE KEY `username` (`username`);
+
+--
+-- AUTO_INCREMENT untuk tabel yang dibuang
+--
+
+--
+-- AUTO_INCREMENT untuk tabel `faq`
+--
+ALTER TABLE `faq`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT untuk tabel `reports`
+--
+ALTER TABLE `reports`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT untuk tabel `resources`
+--
+ALTER TABLE `resources`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- Ketidakleluasaan untuk tabel pelimpahan (Dumped Tables)
+--
+
+--
+-- Ketidakleluasaan untuk tabel `departments`
+--
+ALTER TABLE `departments`
+  ADD CONSTRAINT `departments_ibfk_1` FOREIGN KEY (`parent_id`) REFERENCES `departments` (`id`);
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

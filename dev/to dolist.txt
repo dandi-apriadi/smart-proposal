@@ -1,0 +1,383 @@
+# SmartProposal Admin Routes - Development TODO List
+Date Created: June 15, 2025
+
+## 🔥 PRIORITAS TINGGI (Level 1) - Core Functionality
+
+### 1. User Management ✅ BACKEND COMPLETE - ✅ FRONTEND API INTEGRATION COMPLETE
+- Route: /admin/user-management
+- Backend: userController.js ✅, userRoutes.js ✅
+- Database: userModel.js ✅
+- Frontend: Components exist and NOW CONNECTED TO API ✅
+- Sub-routes:
+  - /admin/user-analytics (✅ API INTEGRATED - using real user stats)
+  - /admin/add-new-user (✅ API INTEGRATED - creates real users)
+  - /admin/account-actions (✅ API INTEGRATED - real user operations)
+- Status: ✅ BACKEND READY - ✅ API INTEGRATION COMPLETE
+
+🎯 **API INTEGRATION COMPLETED:**
+- ✅ Created userService.js - API service layer
+- ✅ Created useUserManagement.js - React hook for state management
+- ✅ Updated index.jsx - Main user directory with real API calls
+- ✅ Updated AddNewUser.jsx - Form now creates real users
+- ✅ Added error handling and loading states
+- ✅ Added pagination using backend data
+- ✅ Added user statistics from backend
+- ✅ Added delete/edit functionality with API
+- ✅ Added environment configuration
+- ✅ Created UI components for better UX
+- ✅ Created API testing utilities
+- ✅ Added comprehensive documentation
+
+🔧 **FILES CREATED/UPDATED:**
+Backend (Already existed):
+- ✅ backend/controllers/userController.js
+- ✅ backend/routes/api/userRoutes.js
+- ✅ backend/models/userModel.js
+- ✅ backend/middleware/AuthUser.js
+
+Frontend (New/Updated):
+- ✅ frontend/src/services/userService.js (NEW)
+- ✅ frontend/src/hooks/useUserManagement.js (NEW)
+- ✅ frontend/src/views/admin/usermanagement/index.jsx (UPDATED - API integrated)
+- ✅ frontend/src/views/admin/usermanagement/components/AddNewUser.jsx (UPDATED)
+- ✅ frontend/src/components/ui/index.js (NEW - UI components)
+- ✅ frontend/src/utils/testAPI.js (NEW - Testing utilities)
+- ✅ frontend/src/docs/USER_MANAGEMENT_API.md (NEW - Documentation)
+- ✅ frontend/.env (UPDATED - API configuration)
+
+🚀 **READY FOR TESTING:**
+- Backend server: http://localhost:5000
+- Frontend app: http://localhost:3000
+- API endpoints: /api/users/*
+- Authentication: Session-based with cookies
+
+### 2. Dashboard Components ⚠️ BACKEND COMPLETE - FRONTEND NEEDS INTEGRATION
+- Route: /admin/default
+- Backend: dashboardController.js ✅
+- Database: Multiple models ✅
+- Frontend: Components exist but using dummy data
+- Sub-routes:
+  - /admin/system-overview (Frontend only - dummy data)
+  - /admin/active-session-status (Frontend only - dummy data)
+  - /admin/user-activity-metrics (Frontend only - dummy data)
+  - /admin/proposal-statistics (Frontend only - dummy data)
+- Status: BACKEND READY - NEED API INTEGRATION
+
+### 3. Proposal Management ⚠️ BACKEND COMPLETE - FRONTEND NEEDS INTEGRATION
+- Route: /admin/proposal-management
+- Backend: proposalController.js ✅, proposalRoutes.js ✅
+- Database: proposalModel.js ✅, proposalDetailModel.js ✅
+- Frontend: Components exist but using dummy data
+- Sub-routes:
+  - /admin/proposal-analytics (Frontend only - dummy data)
+  - /admin/proposal-template (Frontend only - dummy data)
+  - /admin/proposal-reviews (Frontend only - dummy data)
+- Status: BACKEND READY - NEED API INTEGRATION
+
+## ⚠️ PRIORITAS SEDANG (Level 2) - Important Features
+
+### 4. System Monitoring ❌ FRONTEND COMPLETE - BACKEND MISSING
+- Route: /admin/system-monitoring
+- Frontend: SystemMonitoring ✅, ActivityLogs ✅, UserReports ✅
+- Backend: TIDAK ADA - PERLU DIBUAT SEMUA
+- Database: TIDAK ADA MODEL - PERLU DIBUAT
+- Sub-routes:
+  - /admin/activity-logs (Frontend complete - no backend)
+  - /admin/user-reports (Frontend complete - no backend)
+- TODO:
+  [ ] Create systemMonitoringController.js
+  [ ] Create systemMonitoringRoutes.js
+  [ ] Create systemMetricsModel.js
+  [ ] Create performanceLogModel.js
+  [ ] Connect activity logs dengan database
+  [ ] Implement real-time monitoring
+
+### 5. Session Management ❌ FRONTEND COMPLETE - BACKEND MISSING
+- Route: /admin/session-management
+- Frontend: SessionManagement ✅, Calendar ✅, Analytics ✅
+- Backend: TIDAK ADA CONTROLLER - sessionModel.js ada tapi tidak terpakai
+- Database: sessionModel.js ✅, laporanAkhirSessionModel.js ✅
+- Sub-routes:
+  - /admin/session-calendar (Frontend complete - no backend)
+  - /admin/session-analytics (Frontend complete - no backend)
+  - /admin/create-session (Frontend complete - no backend)
+- TODO:
+  [ ] Create sessionController.js
+  [ ] Create sessionRoutes.js
+  [ ] Connect frontend dengan backend API
+  [ ] Implement CRUD operations untuk sessions
+  [ ] Add session analytics endpoints
+
+### 6. Notification Center ❌ FRONTEND COMPLETE - BACKEND MISSING
+- Route: /admin/notification-center
+- Frontend: Notification ✅, MessageCenter ✅, BulkActions ✅
+- Backend: TIDAK ADA SAMA SEKALI
+- Database: TIDAK ADA MODEL
+- Sub-routes:
+  - /admin/message-center (Frontend complete - no backend)
+  - /admin/bulk-actions (Frontend complete - no backend)
+- TODO:
+  [ ] Create notificationController.js
+  [ ] Create notificationRoutes.js
+  [ ] Create notificationModel.js
+  [ ] Create messageModel.js
+  [ ] Implement real-time notifications
+  [ ] Add email/SMS integration
+  [ ] Implement bulk notification features
+
+## 🟡 PRIORITAS RENDAH (Level 3) - Advanced Features
+
+### 7. Training Management ❌ FRONTEND COMPLETE - BACKEND MISSING
+- Route: /admin/training-management
+- Frontend: Complete ML/AI components ✅
+- Backend: TIDAK ADA SAMA SEKALI
+- Database: mlValidationModel.js ✅ (hanya model, tidak terpakai)
+- Sub-routes:
+  - /admin/dataset-management (Frontend complete - no backend)
+  - /admin/model-configuration (Frontend complete - no backend)
+  - /admin/training-history (Frontend complete - no backend)
+  - /admin/prediction-analytics (Frontend complete - no backend)
+- TODO:
+  [ ] Create trainingController.js
+  [ ] Create trainingRoutes.js
+  [ ] Create datasetModel.js
+  [ ] Create modelConfigModel.js
+  [ ] Create trainingHistoryModel.js
+  [ ] Implement ML pipeline integration
+  [ ] Add model training endpoints
+  [ ] Implement prediction analytics
+
+### 8. Settings ❌ FRONTEND COMPLETE - BACKEND MISSING
+- Route: /admin/settings
+- Frontend: GlobalConfiguration ✅, BackupRecovery ✅, SystemHealth ✅
+- Backend: TIDAK ADA SAMA SEKALI
+- Database: TIDAK ADA MODEL
+- Sub-routes:
+  - /admin/global-configuration (Frontend complete - no backend)
+  - /admin/backup-recovery (Frontend complete - no backend)
+  - /admin/system-health (Frontend complete - no backend)
+- TODO:
+  [ ] Create settingsController.js
+  [ ] Create settingsRoutes.js
+  [ ] Create systemConfigModel.js
+  [ ] Create backupLogModel.js
+  [ ] Implement backup/restore functionality
+  [ ] Add system health monitoring
+  [ ] Implement configuration management
+
+## � CRITICAL FINDINGS FROM ANALYSIS
+
+### ✅ BACKEND STATUS (What Actually Exists):
+- userController.js ✅ - Complete CRUD operations
+- dashboardController.js ✅ - Complete dashboard data
+- proposalController.js ✅ - Complete proposal management
+- departmentController.js ✅ - Department operations
+- reviewController.js ✅ - Review system
+- documentController.js ✅ - Document management
+- financialReportController.js ✅ - Financial operations
+- fundUtilizationController.js ✅ - Fund management
+- activityLogController.js ✅ - Activity logging
+- resourceController.js ✅ - Resource management
+- faqController.js ✅ - FAQ system
+
+### ❌ BACKEND MISSING (What Needs to be Created):
+- sessionController.js - TIDAK ADA
+- systemMonitoringController.js - TIDAK ADA
+- notificationController.js - TIDAK ADA
+- trainingController.js - TIDAK ADA
+- settingsController.js - TIDAK ADA
+
+### 🎯 FRONTEND STATUS:
+- ALL ADMIN COMPONENTS EXIST ✅
+- ALL USING DUMMY DATA ⚠️
+- NO API INTEGRATION ❌
+- SOPHISTICATED UI/UX ✅
+
+### 🚨 MAJOR ISSUE DISCOVERED:
+**Frontend dan Backend TIDAK TERHUBUNG!**
+- Frontend menggunakan dummy/static data
+- Backend APIs sudah ada tapi tidak digunakan
+- Perlu integration layer untuk menghubungkan keduanya
+
+## �📋 REVISED IMPLEMENTATION ROADMAP
+
+### FASE 1 (Minggu 1-2): API Integration & Core System Connection
+- [ ] Connect User Management frontend dengan existing backend API
+- [ ] Connect Dashboard frontend dengan existing backend API
+- [ ] Connect Proposal Management frontend dengan existing backend API
+- [ ] Test end-to-end functionality untuk ketiga modul
+- [ ] Fix API integration issues
+- [ ] Add proper error handling
+- [ ] Implement proper authentication middleware
+- [ ] Remove dummy data dari frontend components
+
+### FASE 2 (Minggu 3-4): Session & System Monitoring Backend
+- [ ] Create sessionController.js (PRIORITY 1)
+- [ ] Create sessionRoutes.js
+- [ ] Connect Session Management frontend dengan new backend
+- [ ] Create systemMonitoringController.js
+- [ ] Create systemMonitoringRoutes.js
+- [ ] Create systemMetricsModel.js
+- [ ] Connect System Monitoring frontend dengan new backend
+- [ ] Test session and monitoring functionality
+
+### FASE 3 (Minggu 5-6): Communication & Notifications
+- [ ] Implement Notification System
+- [ ] Add real-time notifications
+- [ ] Test notification delivery
+- [ ] Add email integration
+- [ ] Implement message center
+- [ ] Add bulk operations
+
+### FASE 4 (Minggu 7-8): Advanced Features
+- [ ] Complete Training Management
+- [ ] Implement ML pipeline
+- [ ] Complete Settings management
+- [ ] Add backup/restore
+- [ ] Final testing
+- [ ] Documentation update
+
+## 🎯 IMMEDIATE NEXT STEPS - USER MANAGEMENT TESTING
+
+### ⚡ QUICK START TESTING (Priority Order):
+1. [ ] **Start Backend Server**
+   ```bash
+   cd backend
+   npm start
+   # Server should run on http://localhost:5000
+   ```
+
+2. [ ] **Start Frontend Server**
+   ```bash
+   cd frontend
+   npm start
+   # App should run on http://localhost:3000
+   ```
+
+3. [ ] **Test API Connection**
+   - Open browser console
+   - Navigate to Admin -> User Management
+   - Check for any API errors in console
+   - Verify users load from database (not dummy data)
+
+4. [ ] **Test Core Functionality**
+   - ✅ View users list (should show real data from DB)
+   - ✅ Search users (real-time search)
+   - ✅ Filter by role/status
+   - ✅ View user details
+   - ✅ Add new user (creates in database)
+   - ✅ Delete user (removes from database)
+   - ✅ User statistics (real counts)
+
+5. [ ] **API Testing (Optional)**
+   ```javascript
+   // In browser console:
+   import { testAPI } from './utils/testAPI';
+   testAPI.runAllTests();
+   ```
+
+### 🚨 TROUBLESHOOTING CHECKLIST:
+
+#### If API calls fail:
+- [ ] Check backend is running on port 5000
+- [ ] Check CORS configuration in backend
+- [ ] Check session authentication
+- [ ] Verify database connection
+- [ ] Check .env file configuration
+
+#### If frontend shows dummy data:
+- [ ] Hard refresh browser (Ctrl+F5)
+- [ ] Check browser console for errors
+- [ ] Verify API_URL in .env file
+- [ ] Check network tab for failed requests
+
+#### Common Issues:
+- **CORS Error**: Ensure backend CORS allows http://localhost:3000
+- **Session Error**: Make sure you're logged in as admin
+- **404 Errors**: Verify backend routes are properly mounted
+- **Network Error**: Check if backend server is running
+
+### 📋 TESTING CHECKLIST:
+
+#### ✅ COMPLETED FEATURES:
+- [x] User list with real database data
+- [x] User search and filtering
+- [x] User creation with form validation
+- [x] User deletion with confirmation
+- [x] User statistics display
+- [x] Loading states and error handling
+- [x] Pagination with backend data
+- [x] Role-based access control
+- [x] Session-based authentication
+
+#### 🧪 NEED TESTING:
+- [ ] Create multiple users
+- [ ] Test different user roles
+- [ ] Test search functionality
+- [ ] Test pagination with large datasets
+- [ ] Test error scenarios
+- [ ] Test authentication flow
+- [ ] Verify user permissions
+- [ ] Test form validation
+
+### 🎯 THIS WEEK (Priority Order):
+1. [ ] Connect User Management frontend dengan existing backend API
+2. [ ] Connect Dashboard frontend dengan existing backend API
+3. [ ] Connect Proposal Management frontend dengan existing backend API
+4. [ ] Remove dummy data dari semua frontend components
+5. [ ] Test API integration untuk core functionality
+
+### API Endpoints yang Sudah Ada (Perlu Verifikasi):
+- ✅ /api/users/* - User management
+- ✅ /api/dashboard/* - Dashboard data
+- ✅ /api/proposals/* - Proposal management
+- ✅ /api/departments/* - Department management
+- ✅ /api/reviews/* - Review system
+- ✅ /api/documents/* - Document management
+- ✅ /api/financial-reports/* - Financial reporting
+- ✅ /api/fund-utilizations/* - Fund utilization
+- ✅ /api/activity-logs/* - Activity logging
+- ✅ /api/resources/* - Resource management
+- ✅ /api/faqs/* - FAQ system
+
+### API Endpoints yang Perlu Dibuat:
+- ❌ /api/sessions/* - Session management
+- ❌ /api/notifications/* - Notification system
+- ❌ /api/system-monitoring/* - System monitoring
+- ❌ /api/training/* - ML/AI training
+- ❌ /api/settings/* - System settings
+
+## 🔧 TECHNICAL CONSIDERATIONS
+
+### Database Optimization:
+- [ ] Add proper indexes
+- [ ] Optimize query performance
+- [ ] Implement connection pooling
+- [ ] Add database backup strategy
+
+### Security:
+- [ ] Implement proper RBAC
+- [ ] Add input validation
+- [ ] Implement rate limiting
+- [ ] Add security headers
+- [ ] Implement audit logging
+
+### Performance:
+- [ ] Add Redis caching
+- [ ] Implement pagination
+- [ ] Optimize frontend loading
+- [ ] Add lazy loading
+- [ ] Implement CDN for assets
+
+### Monitoring:
+- [ ] Add application logging
+- [ ] Implement error tracking
+- [ ] Add performance monitoring
+- [ ] Implement health checks
+
+## 📝 NOTES
+- Frontend components sudah lengkap dan well-structured
+- Backend models sudah ada untuk core functionality
+- Perlu fokus pada testing dan integration
+- Session Management punya ROI tertinggi untuk implementasi selanjutnya
+- ML/Training features bisa ditunda sampai core system stabil

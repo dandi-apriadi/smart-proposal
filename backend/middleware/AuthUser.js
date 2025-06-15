@@ -2,28 +2,46 @@ import { User } from "../models/userModel.js";
 
 // Middleware to verify if the user is authenticated
 export const verifyUser = async (req, res, next) => {
-    // Check if user is logged in (session validation)
-    console.log(req.session.user_id);
-    if (!req.session.user_id) {
-        return res.status(401).json({ msg: "Mohon login ke Akun Anda!:" + req.session });
-    }
-
     try {
+        // Check if user is logged in (session validation)
+        console.log('Session check - user_id:', req.session.user_id);
+
+        if (!req.session.user_id) {
+            return res.status(401).json({
+                success: false,
+                msg: "Mohon login ke Akun Anda!"
+            });
+        }
+
         const user = await User.findOne({
             where: {
                 user_id: req.session.user_id
-            }
+            },
+            attributes: { exclude: ['password_hash'] }
         });
 
-        if (!user) return res.status(404).json({ msg: "User tidak ditemukan" });
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                msg: "User tidak ditemukan"
+            });
+        }
 
+        // Add user data to request object
         req.user_id = user.user_id;
         req.role = user.role;
+        req.user = user; // Add complete user object for controller access
 
+        console.log('User authenticated:', user.username, 'Role:', user.role);
         next();
+
     } catch (error) {
-        console.error("Error verifying user:", error); // Log error for debugging
-        res.status(500).json({ msg: "Terjadi kesalahan pada server" });
+        console.error("Error verifying user:", error);
+        res.status(500).json({
+            success: false,
+            msg: "Terjadi kesalahan pada server",
+            error: error.message
+        });
     }
 }
 
