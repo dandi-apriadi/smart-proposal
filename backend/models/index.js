@@ -57,13 +57,10 @@ const setupAssociations = () => {
         foreignKey: 'override_by',
         as: 'ml_overrides',
         constraints: false
-    });    // Department associations - Fixed conflict
-    // User belongs to Department
-    User.belongsTo(Department, {
-        foreignKey: 'department_id',
-        as: 'user_department',
-        constraints: false
     });
+
+    // Department associations - Fixed conflict
+    // Note: Users don't have department_id in database, so no direct relationship
 
     // Remove problematic head_id relationship that causes circular reference
     // Department head can be handled manually in queries if needed

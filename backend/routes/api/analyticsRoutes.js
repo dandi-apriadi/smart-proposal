@@ -15,6 +15,16 @@ import { verifyUser } from "../../middleware/AuthUser.js";
 
 const router = express.Router();
 
+// Debug endpoint (temporary) - no auth required
+router.get('/debug-session', (req, res) => {
+    res.json({
+        success: true,
+        session: req.session,
+        user_id: req.session.user_id,
+        authenticated: !!req.session.user_id
+    });
+});
+
 // Apply authentication middleware to all routes
 router.use(verifyUser);
 

@@ -1,23 +1,25 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
 // Create axios instance with default config
 const analyticsAPI = axios.create({
-    baseURL: `${API_BASE_URL}/analytics`,
+    baseURL: `${API_BASE_URL}/api/analytics`,
     headers: {
         'Content-Type': 'application/json',
     },
     withCredentials: true,
 });
 
+console.log('Analytics API Base URL:', `${API_BASE_URL}/api/analytics`);
+
 // Add request interceptor for authentication
 analyticsAPI.interceptors.request.use(
     (config) => {
-        const token = localStorage.getItem('token');
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-        }
+        // Debug log
+        console.log('Analytics API Request URL:', config.baseURL + config.url);
+        // Remove token-based auth since backend uses session-based auth
+        // Just ensure credentials are included for session cookies
         return config;
     },
     (error) => {
@@ -28,16 +30,16 @@ analyticsAPI.interceptors.request.use(
 // Add response interceptor for error handling
 analyticsAPI.interceptors.response.use(
     (response) => {
-        console.log('Analytics API Response:', response.config.url, response.data);
+        console.log('Analytics API Success:', response.config.url);
         return response;
     },
     (error) => {
-        console.error('Analytics API Error:', error.config?.url, error.response?.data || error.message);
+        console.error('Analytics API Error:', error.config?.url, error.response?.status, error.response?.data || error.message);
 
         if (error.response?.status === 401) {
-            // Handle unauthorized access
-            localStorage.removeItem('token');
-            window.location.href = '/login';
+            // Handle unauthorized access - redirect to login
+            console.warn('Unauthorized access - user needs to login');
+            // Don't automatically redirect, let the component handle it
         }
 
         return Promise.reject(error);

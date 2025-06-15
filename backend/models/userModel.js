@@ -42,11 +42,6 @@ const User = db.define('users', {
         type: DataTypes.STRING(100),
         allowNull: true
     },
-    department_id: {
-        type: DataTypes.STRING(36),
-        allowNull: true
-        // Remove automatic foreign key reference to avoid constraint issues
-    },
     department: {
         type: DataTypes.STRING(100),
         allowNull: true
@@ -84,13 +79,6 @@ const User = db.define('users', {
         type: DataTypes.ENUM('active', 'inactive'),
         allowNull: false,
         defaultValue: 'active'
-    }, head_id: {
-        type: DataTypes.STRING(36),
-        allowNull: true,
-        references: {
-            model: 'users',
-            key: 'user_id'
-        }
     }
 }, {
     freezeTableName: true,
@@ -108,14 +96,6 @@ const User = db.define('users', {
             unique: true,
             fields: ['email'],
             name: 'idx_users_email'
-        },
-        {
-            fields: ['department_id'],
-            name: 'idx_users_department_id'
-        },
-        {
-            fields: ['head_id'],
-            name: 'idx_users_head_id'
         }
     ],
     hooks: {
