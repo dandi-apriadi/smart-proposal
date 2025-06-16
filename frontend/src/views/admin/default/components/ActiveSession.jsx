@@ -28,7 +28,7 @@ const dummySession = {
     participantCount: 62
 };
 
-const ActiveSession = () => {
+const ActiveSession = ({ apiData }) => {
     const [currentSession, setCurrentSession] = useState(null);
     const [timeRemaining, setTimeRemaining] = useState("");
     const [loading, setLoading] = useState(true);
@@ -38,14 +38,35 @@ const ActiveSession = () => {
     const timelineRef = useRef(null);
 
     useEffect(() => {
-        // Simulate API loading
+        // Use API data if available, otherwise use dummy data
         const timer = setTimeout(() => {
-            setCurrentSession(dummySession);
+            if (apiData) {
+                // Process API data to match session structure
+                const processedSession = {
+                    _id: "s2025001",
+                    name: "Session 2025-1",
+                    description: "First research proposal session of 2025",
+                    status: "active",
+                    startDate: "2025-04-01T00:00:00Z",
+                    endDate: "2025-10-31T23:59:59Z",
+                    proposalDeadline: "2025-05-15T23:59:59Z",
+                    reviewDeadline: "2025-06-15T23:59:59Z",
+                    progressReportDeadline: "2025-08-15T23:59:59Z",
+                    finalReportDeadline: "2025-10-15T23:59:59Z",
+                    proposalCount: apiData.overview?.total_proposals || 48,
+                    approvedCount: apiData.proposal_stats?.find(p => p.status === 'approved')?.count || 35,
+                    participantCount: apiData.overview?.active_users || 62
+                };
+                setCurrentSession(processedSession);
+            } else {
+                setCurrentSession(dummySession);
+            }
             setLoading(false);
 
             // Update time remaining display
-            if (dummySession) {
-                const end = new Date(dummySession.endDate);
+            const sessionToUse = apiData ? (currentSession || dummySession) : dummySession;
+            if (sessionToUse) {
+                const end = new Date(sessionToUse.endDate);
                 const now = new Date();
                 setTimeRemaining(formatDistance(end, now, { addSuffix: true }));
 

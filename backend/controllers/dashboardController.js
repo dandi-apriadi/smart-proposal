@@ -9,6 +9,69 @@ import {
 } from '../models/index.js';
 import { Op } from 'sequelize';
 
+// Demo data for when authentication fails or database is unavailable
+const getDemoData = () => ({
+    overview: {
+        total_users: 248,
+        active_users: 178,
+        total_proposals: 124,
+        total_departments: 12
+    },
+    proposal_stats: [
+        { status: 'approved', count: 86 },
+        { status: 'pending', count: 32 },
+        { status: 'rejected', count: 6 }
+    ],
+    user_stats: [
+        { role: 'dosen', count: 120 },
+        { role: 'reviewer', count: 45 },
+        { role: 'admin', count: 8 },
+        { role: 'wadir', count: 5 }
+    ],
+    recent_activities: [
+        {
+            user_name: 'Dr. Ahmad Wijaya',
+            action: 'submitted a new proposal',
+            created_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
+        },
+        {
+            user_name: 'Prof. Siti Nurhaliza',
+            action: 'reviewed proposal #124',
+            created_at: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString()
+        },
+        {
+            user_name: 'Dr. Budi Santoso',
+            action: 'updated financial report',
+            created_at: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString()
+        }
+    ],
+    monthly_trends: {
+        proposals: [32, 28, 42, 38, 47, 50],
+        users: [450, 380, 520, 490, 600, 570]
+    }
+});
+
+// Public demo dashboard endpoint (no authentication required)
+export const getDemoDashboard = async (req, res) => {
+    try {
+        const demoData = getDemoData();
+
+        res.json({
+            success: true,
+            message: 'Demo dashboard data retrieved successfully',
+            data: demoData,
+            isDemo: true
+        });
+    } catch (error) {
+        console.error('Error generating demo dashboard:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to generate demo dashboard data',
+            error: error.message
+        });
+    }
+};
+
 // Dashboard untuk Admin
 export const getAdminDashboard = async (req, res) => {
     try {

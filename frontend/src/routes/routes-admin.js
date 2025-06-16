@@ -7,10 +7,10 @@ import TrainingManagement from "views/admin/training-management";
 import Settings from "views/admin/settings";
 import ProposalReviews from "views/admin/proposal-management/components/proposalReviews";
 import TemplateProposal from "views/admin/proposal-management/components/proposalTemplate";
-import SystemOverview from "views/admin/default/components/SystemOverview";
-import UserActivityMetrics from "views/admin/default/components/UserActivity";
-import ActiveSession from "views/admin/default/components/ActiveSession";
-import ProposalStatistics from "views/admin/default/components/ProposalStatistics";
+import SystemOverviewWrapper from "views/admin/default/components/SystemOverviewWrapper";
+import UserActivityWrapper from "views/admin/default/components/UserActivityWrapper";
+import ActiveSessionWrapper from "views/admin/default/components/ActiveSessionWrapper";
+import ProposalStatisticsWrapper from "views/admin/default/components/ProposalStatisticsWrapper";
 import UserManagement from "views/admin/usermanagement";
 import UserAnalisis from "views/admin/usermanagement/components/UserAnalisis";
 import AccountSetting from "views/admin/usermanagement/components/AccountSetting";
@@ -87,7 +87,7 @@ const routes = [
     parentPath: "default",
     path: "system-overview",
     icon: <MdDashboard className="h-6 w-6 ml-10" />,
-    component: <SystemOverview />,
+    component: <SystemOverviewWrapper />,
     secondary: true,
   },
   {
@@ -96,7 +96,7 @@ const routes = [
     parentPath: "default",
     path: "active-session-status",
     icon: <MdCalendarToday className="h-6 w-6 ml-10" />,
-    component: <ActiveSession />,
+    component: <ActiveSessionWrapper />,
     secondary: true,
   },
   {
@@ -105,7 +105,7 @@ const routes = [
     parentPath: "default",
     path: "user-activity-metrics",
     icon: <MdAnalytics className="h-6 w-6 ml-10" />,
-    component: <UserActivityMetrics />,
+    component: <UserActivityWrapper />,
     secondary: true,
   },
   {
@@ -114,7 +114,7 @@ const routes = [
     parentPath: "default",
     path: "proposal-statistics",
     icon: <MdInsights className="h-6 w-6 ml-10" />,
-    component: <ProposalStatistics />,
+    component: <ProposalStatisticsWrapper />,
     secondary: true,
   },
   {

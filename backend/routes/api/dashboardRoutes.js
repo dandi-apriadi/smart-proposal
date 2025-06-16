@@ -5,11 +5,24 @@ import {
     getWadirDashboard,
     getDosenDashboard,
     getReviewerDashboard,
-    getBendaharaDashboard
+    getBendaharaDashboard,
+    getDemoDashboard
 } from '../../controllers/dashboardController.js';
 import { verifyUser } from '../../middleware/AuthUser.js';
 
 const router = express.Router();
+
+// Test endpoint to check if dashboard API is working
+router.get('/test', (req, res) => {
+    res.json({
+        success: true,
+        message: 'Dashboard API is working',
+        timestamp: new Date().toISOString()
+    });
+});
+
+// Demo dashboard endpoint (no authentication required)
+router.get('/demo', getDemoDashboard);
 
 // Dashboard Routes
 router.get('/', verifyUser, getDashboard);                            // GET /api/dashboard (auto-route based on role)

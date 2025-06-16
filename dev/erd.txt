@@ -1,0 +1,282 @@
+//// ------------------------------------------------////
+////          DBML for SmartProposal Database         ////
+//// ------------------------------------------------////
+
+Table activity_logs {
+  id varchar(36) [pk]
+  type "ENUM('proposal','system','document')" [not null]
+  action varchar(50) [not null]
+  user varchar(100) [not null, note: 'Likely FK to users.user_id']
+  title varchar(255) [not null]
+  timestamp varchar(10) [not null]
+  date varchar(20) [not null]
+  status "ENUM('success','warning','error','info')" [not null]
+  details text
+  user_avatar varchar(255)
+  created_at datetime
+}
+
+Table budget_allocations {
+  id varchar(36) [pk]
+  session_id varchar(20) [not null, note: 'Likely FK to sessions.sid']
+  department_id varchar(36) [not null, note: 'Likely FK to departments.id']
+  amount decimal(15,2) [not null]
+  allocation_date datetime
+  allocated_by varchar(36) [not null, note: 'Likely FK to users.user_id']
+  status "ENUM('planned','allocated','utilized')" [not null]
+  notes text
+}
+
+Table budget_categories {
+  id varchar(36) [pk]
+  name varchar(100) [not null]
+  code varchar(20) [not null, unique]
+  description text
+  created_at datetime
+  updated_at datetime
+}
+
+Table collaborators {
+  id varchar(36) [pk]
+  proposal_id varchar(20) [not null, note: 'Likely FK to proposals.id']
+  name varchar(100) [not null]
+  role varchar(50) [not null]
+  email varchar(100)
+  institution varchar(100)
+  created_at datetime
+}
+
+Table departments {
+  id varchar(36) [pk]
+  name varchar(100) [not null]
+  code varchar(20) [not null]
+  parent_id varchar(36) [note: 'FK to departments.id']
+  head_id varchar(36) [note: 'Likely FK to users.user_id']
+  contact_email varchar(100)
+  contact_phone varchar(20)
+  created_at datetime
+  updated_at datetime
+}
+
+Table documents {
+  id varchar(36) [pk]
+  name varchar(255) [not null]
+  type varchar(50) [not null]
+  file_path varchar(255) [not null]
+  size varchar(20) [not null]
+  format varchar(20) [not null]
+  upload_date datetime
+  status varchar(50) [not null, default: 'pending']
+  notes text
+  entity_type "ENUM('proposal','report','resource')" [not null]
+  entity_id varchar(36) [not null, note: 'Polymorphic FK. Refers to proposals, reports, or resources based on entity_type']
+  uploaded_by varchar(36) [not null, note: 'Likely FK to users.user_id']
+}
+
+Table faq {
+  id int [pk, increment]
+  category varchar(50) [not null]
+  question text [not null]
+  answer text [not null]
+  created_at datetime
+}
+
+Table feedbacks {
+  id varchar(36) [pk]
+  entity_type "ENUM('proposal','report','final_report')" [not null]
+  entity_id varchar(36) [not null, note: 'Polymorphic FK. Refers to proposals, reports, or final_reports based on entity_type']
+  reviewer varchar(100) [not null]
+  section varchar(50)
+  message text [not null]
+  date datetime
+  status "ENUM('resolved','unresolved')" [not null, default: 'unresolved']
+  response text
+}
+
+Table final_reports {
+  id varchar(36) [pk]
+  proposal_id varchar(20) [not null, note: 'Likely FK to proposals.id']
+  title varchar(255) [not null]
+  abstract text [not null]
+  introduction text
+  methodology text
+  results text
+  discussion text
+  conclusion text
+  references text
+  submission_date datetime
+  status "ENUM('draft','submitted','reviewed','approved','rejected')" [not null, default: 'draft']
+}
+
+Table financial_reports {
+  id varchar(20) [pk]
+  proposal_id varchar(20) [not null, note: 'Likely FK to proposals.id']
+  title varchar(255) [not null]
+  report_type "ENUM('monthly','quarterly','session','final','audit')" [not null]
+  period varchar(50) [not null]
+  submitted_by varchar(36) [not null, note: 'Likely FK to users.user_id']
+  submission_date datetime
+  status "ENUM('draft','submitted','verified','rejected')" [not null]
+  format varchar(10) [not null, default: 'PDF']
+  verification_date datetime
+  verified_by varchar(36) [note: 'Likely FK to users.user_id']
+  notes text
+}
+
+Table fund_utilizations {
+  id varchar(20) [pk]
+  proposal_id varchar(20) [not null, note: 'Likely FK to proposals.id']
+  title varchar(255) [not null]
+  researcher varchar(100) [not null]
+  faculty varchar(100) [not null]
+  category varchar(50) [not null]
+  submission_date date [not null]
+  amount_used decimal(15,2) [not null]
+  total_allocated decimal(15,2) [not null]
+  status "ENUM('Menunggu Verifikasi','Terverifikasi','Ditolak')" [not null]
+  notes text
+  rejection_reason text
+}
+
+Table laporan_akhir_sessions {
+  id varchar(36) [pk]
+  name varchar(100) [not null]
+  status varchar(50) [not null]
+  start_date date [not null]
+  end_date date [not null]
+  duration varchar(50)
+  completion_date datetime
+  total_proposals int
+  approved int
+  rejected int
+  revised int
+  approval_rate decimal(5,2)
+  average_score decimal(5,2)
+  average_review_time varchar(20)
+  total_budget varchar(50)
+  allocated_budget varchar(50)
+}
+
+Table ml_validations {
+  id varchar(36) [pk]
+  proposal_id varchar(20) [not null, note: 'Likely FK to proposals.id']
+  accuracy decimal(5,2) [not null]
+  precision_score decimal(5,2) [not null]
+  recall decimal(5,2) [not null]
+  f1_score decimal(5,2) [not null]
+  false_positive_rate decimal(5,2)
+  false_negative_rate decimal(5,2)
+  validation_date datetime
+  override_by varchar(36) [note: 'Likely FK to users.user_id']
+  override_reason text
+}
+
+Table proposals {
+  id varchar(20) [pk]
+  title varchar(255) [not null]
+  description text [not null]
+  user_id varchar(36) [not null, note: 'Likely FK to users.user_id']
+  session_id varchar(20) [not null, note: 'Likely FK to sessions.sid']
+  department_id varchar(36) [not null, note: 'Likely FK to departments.id']
+  status "ENUM('draft','submitted','under_review','approved','rejected','revision_required')" [not null]
+  ml_score decimal(5,2)
+  budget decimal(15,2) [not null]
+  type varchar(50) [not null]
+  reject_reason text
+}
+
+Table proposal_details {
+  proposal_id varchar(20) [pk, note: 'FK to proposals.id']
+  sustainability_score "decimal(5,2)" [default: 0.00]
+}
+
+Table recent_activities {
+  id varchar(36) [pk]
+  timestamp datetime
+}
+
+Table reports {
+  id int [pk, increment]
+  last_modified date [not null]
+}
+
+Table resources {
+  id int [pk, increment]
+  type varchar(10) [not null]
+}
+
+Table reviews {
+  id varchar(36) [pk]
+  status "ENUM('pending','completed')" [not null, default: 'pending']
+}
+
+Table sessions {
+  sid varchar(36) [pk]
+  expires datetime [note: 'Column inferred from INSERT data']
+  data text [note: 'Column inferred from INSERT data']
+  createdAt datetime [note: 'Column inferred from INSERT data']
+  updatedAt datetime [not null]
+}
+
+Table users {
+  user_id varchar(255) [pk]
+  role varchar(50) [note: 'Column inferred from INSERT data']
+  email varchar(100) [note: 'Column inferred from INSERT data']
+  status varchar(50) [note: 'Column inferred from INSERT data']
+  faculty varchar(100) [note: 'Column inferred from INSERT data']
+  department varchar(100) [note: 'Column inferred from INSERT data']
+  last_login datetime [note: 'Column inferred from INSERT data']
+  created_at datetime [note: 'Column inferred from INSERT data']
+  updated_at datetime [note: 'Column inferred from INSERT data']
+  username varchar(255) [unique, note: 'Column inferred from INSERT data and ALTER TABLE']
+  password_hash varchar(255) [note: 'Column inferred from INSERT data']
+  full_name varchar(255) [note: 'Column inferred from INSERT data']
+  position varchar(100) [note: 'Column inferred from INSERT data']
+  profile_image varchar(255)
+}
+
+//// ---- Relationships ---- ////
+
+// Explicit FK from SQL DDL
+Ref: departments.parent_id < departments.id
+
+// Inferred FKs (based on naming conventions and common database design patterns)
+Ref: activity_logs.user < users.user_id
+Ref: budget_allocations.session_id < sessions.sid
+Ref: budget_allocations.department_id < departments.id
+Ref: budget_allocations.allocated_by < users.user_id
+Ref: collaborators.proposal_id < proposals.id
+Ref: departments.head_id < users.user_id
+Ref: documents.uploaded_by < users.user_id
+Ref: final_reports.proposal_id < proposals.id
+Ref: financial_reports.proposal_id < proposals.id
+Ref: financial_reports.submitted_by < users.user_id
+Ref: financial_reports.verified_by < users.user_id
+Ref: fund_utilizations.proposal_id < proposals.id
+Ref: ml_validations.proposal_id < proposals.id
+Ref: ml_validations.override_by < users.user_id
+Ref: proposals.user_id < users.user_id
+Ref: proposals.session_id < sessions.sid
+Ref: proposals.department_id < departments.id
+
+// One-to-one relationship
+Ref: proposal_details.proposal_id - proposals.id
+
+
+// ---- Notes on Polymorphic Relationships ---- //
+// The following relationships are polymorphic and cannot be directly drawn with standard Ref lines.
+// They are typically handled at the application layer.
+
+// Table: documents
+// Column: entity_id (varchar(36))
+// Depends on: entity_type (ENUM('proposal','report','resource'))
+// - If entity_type is 'proposal', documents.entity_id refers to proposals.id
+// - If entity_type is 'report', documents.entity_id refers to reports.id
+// - If entity_type is 'resource', documents.entity_id refers to resources.id
+
+// Table: feedbacks
+// Column: entity_id (varchar(36))
+// Depends on: entity_type (ENUM('proposal','report','final_report'))
+// - If entity_type is 'proposal', feedbacks.entity_id refers to proposals.id
+// - If entity_type is 'report', feedbacks.entity_id refers to reports.id
+// - If entity_type is 'final_report', feedbacks.entity_id refers to final_reports.id

@@ -155,8 +155,28 @@ const dummyMetrics = {
     ]
 };
 
-const UserActivity = () => {
-    const [activities, setActivities] = useState(dummyActivities);
+const UserActivity = ({ apiData }) => {
+    // Process API data for activities
+    const processActivities = () => {
+        if (apiData?.recent_activities && apiData.recent_activities.length > 0) {
+            return apiData.recent_activities.map((activity, index) => ({
+                id: activity.id || index + 1,
+                user: {
+                    name: activity.user_name || "Unknown User",
+                    email: activity.user_email || "unknown@email.com",
+                    role: activity.user_role || "user",
+                    avatar: `https://randomuser.me/api/portraits/${index % 2 === 0 ? 'men' : 'women'}/${(index + 1) % 99}.jpg`
+                },
+                type: activity.action_type || "general",
+                action: activity.action || "performed an action",
+                details: activity.description || "No details available",
+                timestamp: activity.created_at || new Date().toISOString()
+            }));
+        }
+        return dummyActivities; // Fallback to dummy data
+    };
+
+    const [activities, setActivities] = useState(processActivities());
     const [metrics, setMetrics] = useState(dummyMetrics);
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState("all");
@@ -164,6 +184,11 @@ const UserActivity = () => {
     const [anchorEl, setAnchorEl] = useState(null);
     const [timeAnchorEl, setTimeAnchorEl] = useState(null);
     const [searchQuery, setSearchQuery] = useState("");
+
+    // Update activities when apiData changes
+    useEffect(() => {
+        setActivities(processActivities());
+    }, [apiData]);
 
     useEffect(() => {
         // Simulate loading
