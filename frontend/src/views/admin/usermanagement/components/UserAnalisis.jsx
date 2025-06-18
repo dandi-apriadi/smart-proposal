@@ -150,13 +150,16 @@ const UserAnalisis = () => {
             retentionByRole: [],
             summary: ""
         }
-    });
-
-    // Fetch analytics data
+    });    // Fetch analytics data
     const fetchAnalyticsData = async () => {
         try {
+            // Clear console before logging
+            console.clear();
+
             setLoading(true);
             setError(null);
+
+            console.log('🔄 Starting UserAnalisis data fetch...');
 
             // Fetch all analytics data
             const [
@@ -181,37 +184,60 @@ const UserAnalisis = () => {
                 analyticsService.getRetentionMetrics()
             ]);
 
-            // Update user data state
+            // Log successful data
+            console.log('✅ UserAnalisis - Data fetched successfully:');
+            console.log('📊 Overview Data:', overviewData);
+            console.log('👥 Roles Data:', rolesData);
+            console.log('📈 Activity Data:', activityData);
+            console.log('📅 Trends Data:', trendsData);
+            console.log('🏢 Department Data:', departmentData);
+            console.log('📋 Status Data:', statusData);
+            console.log('💡 Insights Overview:', insightsOverview);
+            console.log('🎯 Engagement Data:', engagementData);
+            console.log('🔄 Retention Data:', retentionData);            // Update user data state with proper fallbacks
+            const safeOverviewData = overviewData?.data || {};
             setUserData({
-                ...overviewData.data,
-                userRoles: rolesData.data || [],
-                userActivity: activityData.data || [],
-                registrationTrends: trendsData.data || [],
-                departmentDistribution: departmentData.data || [],
-                userStatus: statusData.data || []
+                totalUsers: safeOverviewData.totalUsers || 0,
+                activeUsers: safeOverviewData.activeUsers || 0,
+                inactiveUsers: safeOverviewData.inactiveUsers || 0,
+                newUsers: safeOverviewData.newUsers || 0,
+                userGrowth: safeOverviewData.userGrowth || 0,
+                userRoles: rolesData?.data || [],
+                userActivity: activityData?.data || [],
+                registrationTrends: trendsData?.data || [],
+                departmentDistribution: departmentData?.data || [],
+                userStatus: statusData?.data || []
             });
 
-            // Update insights data state
+            // Update insights data state with proper fallbacks
             setUserInsightsData({
-                overview: insightsOverview.data || { metrics: [], summary: "" },
-                engagement: engagementData.data || { metrics: [], engagementByRole: [], summary: "" },
-                retention: retentionData.data || { metrics: [], retentionByRole: [], summary: "" }
+                overview: insightsOverview?.data || { metrics: [], summary: "" },
+                engagement: engagementData?.data || { metrics: [], engagementByRole: [], summary: "" },
+                retention: retentionData?.data || { metrics: [], retentionByRole: [], summary: "" }
             });
+
+            console.log('✅ UserAnalisis - State updated successfully');
 
         } catch (error) {
-            console.error('Error fetching analytics data:', error);
+            console.clear();
+            console.error('❌ UserAnalisis - Error fetching analytics data:', error);
+            console.error('❌ Error details:', {
+                name: error.name,
+                message: error.message,
+                stack: error.stack
+            });
             setError('Failed to load analytics data. Please try again.');
         } finally {
             setLoading(false);
         }
-    };
-
-    // Refetch data when time range changes
+    };    // Refetch data when time range changes
     useEffect(() => {
+        console.log('🔄 UserAnalisis - Time range changed to:', timeRange);
         fetchAnalyticsData();
     }, [timeRange]);
 
     useEffect(() => {
+        console.log('🚀 UserAnalisis component initialized');
         AOS.init({
             duration: 800,
             once: true,
@@ -229,18 +255,16 @@ const UserAnalisis = () => {
         { value: "monthly", label: "Last 30 Days" },
         { value: "quarterly", label: "Last 3 Months" },
         { value: "yearly", label: "Last 12 Months" }
-    ];
-
-    // Chart configurations
+    ];    // Chart configurations with safe data handling
     const userRoleChartConfig = {
-        series: userData.userRoles.map(item => item.count),
+        series: userData.userRoles?.length > 0 ? userData.userRoles.map(item => item.count) : [1],
         options: {
             chart: {
                 type: 'donut',
                 foreColor: '#697a8d',
             },
-            labels: userData.userRoles.map(item => item.role),
-            colors: ['#3b82f6', '#10b981', '#6366f1', '#f59e0b', '#ef4444'],
+            labels: userData.userRoles?.length > 0 ? userData.userRoles.map(item => item.role) : ['No Data'],
+            colors: userData.userRoles?.length > 0 ? ['#3b82f6', '#10b981', '#6366f1', '#f59e0b', '#ef4444'] : ['#e5e7eb'],
             legend: {
                 position: 'bottom'
             },
@@ -249,6 +273,17 @@ const UserAnalisis = () => {
                     donut: {
                         size: '70%'
                     }
+                }
+            },
+            noData: {
+                text: 'No data available',
+                align: 'center',
+                verticalAlign: 'middle',
+                offsetX: 0,
+                offsetY: 0,
+                style: {
+                    color: '#9ca3af',
+                    fontSize: '14px'
                 }
             },
             responsive: [{
@@ -263,12 +298,10 @@ const UserAnalisis = () => {
                 }
             }]
         }
-    };
-
-    const userActivityChartConfig = {
+    }; const userActivityChartConfig = {
         series: [{
             name: 'Active Users',
-            data: userData.userActivity.map(item => item.users)
+            data: userData.userActivity?.length > 0 ? userData.userActivity.map(item => item.users || 0) : []
         }],
         options: {
             chart: {
@@ -287,7 +320,7 @@ const UserAnalisis = () => {
                 width: 3
             },
             xaxis: {
-                categories: userData.userActivity.map(item => item.month)
+                categories: userData.userActivity?.length > 0 ? userData.userActivity.map(item => item.month) : []
             },
             colors: ['#3b82f6'],
             fill: {
@@ -299,18 +332,25 @@ const UserAnalisis = () => {
                     stops: [0, 90, 100]
                 }
             },
+            noData: {
+                text: 'No activity data available',
+                align: 'center',
+                verticalAlign: 'middle',
+                style: {
+                    color: '#9ca3af',
+                    fontSize: '14px'
+                }
+            },
             tooltip: {
                 y: {
                     formatter: (val) => `${val} Users`
                 }
             }
         }
-    };
-
-    const userRegistrationChartConfig = {
+    }; const userRegistrationChartConfig = {
         series: [{
             name: 'New Registrations',
-            data: userData.registrationTrends.map(item => item.count)
+            data: userData.registrationTrends?.length > 0 ? userData.registrationTrends.map(item => item.count || 0) : []
         }],
         options: {
             chart: {
@@ -332,7 +372,16 @@ const UserAnalisis = () => {
             },
             colors: ['#10b981'],
             xaxis: {
-                categories: userData.registrationTrends.map(item => item.month)
+                categories: userData.registrationTrends?.length > 0 ? userData.registrationTrends.map(item => item.month) : []
+            },
+            noData: {
+                text: 'No registration data available',
+                align: 'center',
+                verticalAlign: 'middle',
+                style: {
+                    color: '#9ca3af',
+                    fontSize: '14px'
+                }
             },
             tooltip: {
                 y: {
@@ -345,7 +394,7 @@ const UserAnalisis = () => {
     const departmentChartConfig = {
         series: [{
             name: 'Users',
-            data: userData.departmentDistribution.map(item => item.users)
+            data: userData.departmentDistribution?.length > 0 ? userData.departmentDistribution.map(item => item.users || 0) : []
         }],
         options: {
             chart: {
@@ -368,7 +417,16 @@ const UserAnalisis = () => {
             },
             colors: ['#6366f1'],
             xaxis: {
-                categories: userData.departmentDistribution.map(item => item.department)
+                categories: userData.departmentDistribution?.length > 0 ? userData.departmentDistribution.map(item => item.department) : []
+            },
+            noData: {
+                text: 'No department data available',
+                align: 'center',
+                verticalAlign: 'middle',
+                style: {
+                    color: '#9ca3af',
+                    fontSize: '14px'
+                }
             },
             tooltip: {
                 y: {
@@ -400,7 +458,7 @@ const UserAnalisis = () => {
                             </svg>
                         </div>
                         <div className="ml-3">
-                            <h3 className="text-sm font-medium text-red-800">Error Loading Analytics</h3>
+                            <h3 className="text-sm font-medium text-red-800">Error Loading Analyticss</h3>
                             <div className="mt-2 text-sm text-red-700">
                                 <p>{error}</p>
                             </div>
@@ -418,6 +476,19 @@ const UserAnalisis = () => {
             </div>
         );
     }
+
+    // Log current component state before rendering
+    console.log('🎨 UserAnalisis rendering with state:', {
+        loading,
+        error: !!error,
+        timeRange,
+        hasUserData: !!userData,
+        totalUsers: userData?.totalUsers || 0,
+        activeUsers: userData?.activeUsers || 0,
+        newUsers: userData?.newUsers || 0,
+        userRolesCount: userData?.userRoles?.length || 0,
+        departmentCount: userData?.departmentDistribution?.length || 0
+    });
 
     return (
         <div className="mx-auto p-4">
@@ -631,8 +702,8 @@ const UserAnalisis = () => {
                                         {Icons.trendingUp}
                                     </div>
                                     <span className={`px-3 py-1 rounded-full text-sm font-medium ${metric.trend.includes('+') ? 'bg-green-100 text-green-700' :
-                                            metric.trend.includes('-') ? 'bg-red-100 text-red-700' :
-                                                'bg-blue-100 text-blue-700'
+                                        metric.trend.includes('-') ? 'bg-red-100 text-red-700' :
+                                            'bg-blue-100 text-blue-700'
                                         }`}>
                                         {metric.trend}
                                     </span>
@@ -673,8 +744,8 @@ const UserAnalisis = () => {
                                         {Icons.trendingUp}
                                     </div>
                                     <span className={`px-3 py-1 rounded-full text-sm font-medium ${metric.trend.includes('+') ? 'bg-green-100 text-green-700' :
-                                            metric.trend.includes('-') ? 'bg-red-100 text-red-700' :
-                                                'bg-blue-100 text-blue-700'
+                                        metric.trend.includes('-') ? 'bg-red-100 text-red-700' :
+                                            'bg-blue-100 text-blue-700'
                                         }`}>
                                         {metric.trend}
                                     </span>
@@ -698,8 +769,8 @@ const UserAnalisis = () => {
                                         <div className="flex items-center justify-between mb-2">
                                             <h6 className="text-sm font-medium text-gray-700">{role.role}</h6>
                                             <span className={`px-2 py-1 rounded-full text-xs font-medium ${parseFloat(role.progress) > 0 ? 'bg-green-100 text-green-700' :
-                                                    parseFloat(role.progress) < 0 ? 'bg-red-100 text-red-700' :
-                                                        'bg-gray-100 text-gray-700'
+                                                parseFloat(role.progress) < 0 ? 'bg-red-100 text-red-700' :
+                                                    'bg-gray-100 text-gray-700'
                                                 }`}>
                                                 {parseFloat(role.progress) > 0 ? '+' : ''}{role.progress}%
                                             </span>
@@ -753,8 +824,8 @@ const UserAnalisis = () => {
                                         {Icons.trendingUp}
                                     </div>
                                     <span className={`px-3 py-1 rounded-full text-sm font-medium ${metric.trend.includes('+') ? 'bg-green-100 text-green-700' :
-                                            metric.trend.includes('-') ? 'bg-red-100 text-red-700' :
-                                                'bg-blue-100 text-blue-700'
+                                        metric.trend.includes('-') ? 'bg-red-100 text-red-700' :
+                                            'bg-blue-100 text-blue-700'
                                         }`}>
                                         {metric.trend}
                                     </span>
@@ -775,8 +846,8 @@ const UserAnalisis = () => {
                                         <div className="flex items-center justify-between mb-2">
                                             <h6 className="text-sm font-medium text-gray-700">{role.role}</h6>
                                             <span className={`px-2 py-1 rounded-full text-xs font-medium ${parseFloat(role.progress) > 0 ? 'bg-green-100 text-green-700' :
-                                                    parseFloat(role.progress) < 0 ? 'bg-red-100 text-red-700' :
-                                                        'bg-gray-100 text-gray-700'
+                                                parseFloat(role.progress) < 0 ? 'bg-red-100 text-red-700' :
+                                                    'bg-gray-100 text-gray-700'
                                                 }`}>
                                                 {parseFloat(role.progress) > 0 ? '+' : ''}{role.progress}%
                                             </span>

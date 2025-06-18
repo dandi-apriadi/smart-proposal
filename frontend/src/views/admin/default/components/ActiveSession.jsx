@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import {
     MdOutlineTimer, MdDateRange, MdAssignment, MdCheck, MdWarning,
     MdCalendarToday, MdFlag, MdInfo, MdKeyboardArrowDown,
@@ -27,32 +27,10 @@ const ActiveSession = ({ apiData }) => {
     const [timeRemaining, setTimeRemaining] = useState("");
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [nextDeadline, setNextDeadline] = useState(null);
-    const [expandedSection, setExpandedSection] = useState("timeline");
-    const [isVisible, setIsVisible] = useState(false);
-    const componentRef = useRef(null);
+    const [nextDeadline, setNextDeadline] = useState(null); const [expandedSection, setExpandedSection] = useState("timeline");
 
     // Get auth token from Redux store
-    const { token } = useSelector(state => state.auth);
-
-    // Intersection Observer for animations
-    useEffect(() => {
-        const observer = new IntersectionObserver(
-            ([entry]) => {
-                if (entry.isIntersecting) {
-                    setIsVisible(true);
-                    observer.disconnect();
-                }
-            },
-            { threshold: 0.1 }
-        );
-
-        if (componentRef.current) {
-            observer.observe(componentRef.current);
-        }
-
-        return () => observer.disconnect();
-    }, []); useEffect(() => {
+    const { token } = useSelector(state => state.auth); useEffect(() => {
         const fetchActiveSessionData = async () => {
             try {
                 setLoading(true);
@@ -435,22 +413,15 @@ const ActiveSession = ({ apiData }) => {
             sessionName: currentSession.name,
             sessionPhase,
             statusColor
-        });
-
-        return (
+        }); return (
             <div className="relative">
-                {/* Background Gradient */}
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 rounded-3xl blur-xl"></div>
-
-                <div className="relative bg-white/80 dark:bg-navy-800/80 backdrop-blur-xl rounded-3xl p-6 border border-gray-200/50 dark:border-navy-700/50 shadow-2xl">
+                <div className="relative bg-white dark:bg-navy-800 rounded-2xl p-6 border border-gray-200 dark:border-navy-700 shadow-lg">
                     <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-6">
-                            {/* Enhanced Icon with Animation */}
+                        <div className="flex items-center space-x-6">                            {/* Enhanced Icon */}
                             <div className="relative">
-                                <div className="absolute inset-0 bg-gradient-to-r from-brand-500 to-purple-600 rounded-2xl blur-lg opacity-75 animate-pulse"></div>
-                                <div className="relative w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-500 via-brand-600 to-purple-600 flex items-center justify-center shadow-2xl transform hover:scale-110 transition-all duration-300">
+                                <div className="relative w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-500 via-brand-600 to-purple-600 flex items-center justify-center shadow-lg">
                                     <TbCalendarStats className="text-white text-2xl" />
-                                    <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white dark:border-navy-800 animate-pulse"></div>
+                                    <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white dark:border-navy-800"></div>
                                 </div>
                             </div>
 
@@ -473,12 +444,11 @@ const ActiveSession = ({ apiData }) => {
                         </div>
 
                         {/* Enhanced Status Badge */}
-                        <div className="flex flex-col items-end space-y-3">
-                            <div className={`inline-flex items-center px-6 py-3 rounded-2xl text-sm font-bold ${statusColor.replace('text', 'bg').replace('500', '100')} ${statusColor} border-2 border-current/20 shadow-lg backdrop-blur-sm`}>
-                                <div className="w-3 h-3 rounded-full bg-current mr-3 animate-pulse shadow-lg"></div>
-                                <span className="uppercase tracking-wider">{sessionPhase}</span>
-                                <MdTrendingUp className="ml-2 text-lg" />
-                            </div>
+                        <div className="flex flex-col items-end space-y-3">                            <div className={`inline-flex items-center px-6 py-3 rounded-2xl text-sm font-bold ${statusColor.replace('text', 'bg').replace('500', '100')} ${statusColor} border-2 border-current/20 shadow-lg`}>
+                            <div className="w-3 h-3 rounded-full bg-current mr-3 shadow-lg"></div>
+                            <span className="uppercase tracking-wider">{sessionPhase}</span>
+                            <MdTrendingUp className="ml-2 text-lg" />
+                        </div>
 
                             {/* Quick Stats Preview */}
                             <div className="flex items-center space-x-4 text-xs text-gray-500 dark:text-gray-400">
@@ -556,8 +526,8 @@ const ActiveSession = ({ apiData }) => {
                     </div>
                 </div>
                 <div className={`px-4 py-2 rounded-xl text-sm font-bold ${progress > 80 ? 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400' :
-                        progress > 50 ? 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-400' :
-                            'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400'
+                    progress > 50 ? 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-400' :
+                        'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400'
                     }`}>
                     {progress}% Complete
                 </div>
@@ -565,25 +535,21 @@ const ActiveSession = ({ apiData }) => {
 
             {/* Enhanced Progress Bar */}
             <div className="relative">
-                <div className="h-4 w-full bg-gray-200 dark:bg-navy-700 rounded-full overflow-hidden shadow-inner">
-                    <div
-                        className={`h-full rounded-full transition-all duration-1000 relative ${progress > 80 ? 'bg-gradient-to-r from-red-400 via-red-500 to-red-600' :
-                                progress > 50 ? 'bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600' :
-                                    'bg-gradient-to-r from-green-400 via-green-500 to-green-600'
-                            }`}
-                        style={{ width: `${progress}%` }}
-                    >
-                        {/* Animated shine effect */}
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-pulse"></div>
-                    </div>
+                <div className="h-4 w-full bg-gray-200 dark:bg-navy-700 rounded-full overflow-hidden shadow-inner">                    <div
+                    className={`h-full rounded-full relative ${progress > 80 ? 'bg-gradient-to-r from-red-400 via-red-500 to-red-600' :
+                        progress > 50 ? 'bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600' :
+                            'bg-gradient-to-r from-green-400 via-green-500 to-green-600'
+                        }`}
+                    style={{ width: `${progress}%` }}
+                >
+                </div>
                 </div>
 
-                {/* Progress indicator */}
-                <div
-                    className="absolute top-1/2 -translate-y-1/2 w-6 h-6 bg-white rounded-full shadow-lg border-4 border-current transition-all duration-1000"
+                {/* Progress indicator */}                <div
+                    className="absolute top-1/2 -translate-y-1/2 w-6 h-6 bg-white rounded-full shadow-lg border-4 border-current"
                     style={{ left: `${Math.min(progress, 95)}%`, color: progress > 80 ? '#ef4444' : progress > 50 ? '#eab308' : '#22c55e' }}
                 >
-                    <div className="absolute inset-1 rounded-full bg-current animate-pulse"></div>
+                    <div className="absolute inset-1 rounded-full bg-current"></div>
                 </div>
             </div>
 
@@ -601,15 +567,14 @@ const ActiveSession = ({ apiData }) => {
 
                     return (
                         <div key={milestone.label} className="text-center">
-                            <div className="relative mb-3">
-                                <div className={`w-16 h-16 mx-auto rounded-2xl flex items-center justify-center text-lg transition-all duration-300 ${isCompleted
-                                        ? `bg-gradient-to-br from-${milestone.color}-500 to-${milestone.color}-600 text-white shadow-xl scale-110`
-                                        : isCurrent
-                                            ? `bg-gradient-to-br from-${milestone.color}-100 to-${milestone.color}-200 text-${milestone.color}-600 border-2 border-${milestone.color}-400 animate-pulse shadow-lg`
-                                            : 'bg-gray-200 text-gray-500 dark:bg-gray-700/50 dark:text-gray-400'
-                                    }`}>
-                                    {isCompleted ? <MdCheck className="text-2xl" /> : <milestone.icon className="text-xl" />}
-                                </div>
+                            <div className="relative mb-3">                                <div className={`w-16 h-16 mx-auto rounded-2xl flex items-center justify-center text-lg ${isCompleted
+                                ? `bg-gradient-to-br from-${milestone.color}-500 to-${milestone.color}-600 text-white shadow-xl`
+                                : isCurrent
+                                    ? `bg-gradient-to-br from-${milestone.color}-100 to-${milestone.color}-200 text-${milestone.color}-600 border-2 border-${milestone.color}-400 shadow-lg`
+                                    : 'bg-gray-200 text-gray-500 dark:bg-gray-700/50 dark:text-gray-400'
+                                }`}>
+                                {isCompleted ? <MdCheck className="text-2xl" /> : <milestone.icon className="text-xl" />}
+                            </div>
 
                                 {/* Connection line */}
                                 {i < 4 && (
@@ -620,8 +585,8 @@ const ActiveSession = ({ apiData }) => {
 
                             <div className="space-y-1">
                                 <div className={`font-bold text-sm ${isCompleted ? 'text-green-600 dark:text-green-400' :
-                                        isCurrent ? `text-${milestone.color}-600 dark:text-${milestone.color}-400` :
-                                            'text-gray-500 dark:text-gray-400'
+                                    isCurrent ? `text-${milestone.color}-600 dark:text-${milestone.color}-400` :
+                                        'text-gray-500 dark:text-gray-400'
                                     }`}>
                                     {milestone.label}
                                 </div>
@@ -768,24 +733,22 @@ const ActiveSession = ({ apiData }) => {
                                         return (
                                             <div key={index} className="relative flex items-start space-x-6">
                                                 {/* Timeline Node */}
-                                                <div className="relative z-10">
-                                                    <div className={`w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg transition-all duration-300 hover:scale-110 ${event.status === 'completed'
-                                                            ? `bg-gradient-to-br from-${event.color}-500 to-${event.color}-600 text-white`
-                                                            : event.status === 'active'
-                                                                ? `bg-gradient-to-br from-${event.color}-100 to-${event.color}-200 text-${event.color}-600 border-4 border-${event.color}-400 animate-pulse`
-                                                                : 'bg-gray-200 text-gray-500 dark:bg-gray-700 dark:text-gray-400'
-                                                        }`}>
-                                                        {event.status === 'completed' ? (
-                                                            <MdCheck className="text-2xl" />
-                                                        ) : (
-                                                            <IconComponent className="text-xl" />
-                                                        )}
-                                                    </div>
+                                                <div className="relative z-10">                                                    <div className={`w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg ${event.status === 'completed'
+                                                    ? `bg-gradient-to-br from-${event.color}-500 to-${event.color}-600 text-white`
+                                                    : event.status === 'active'
+                                                        ? `bg-gradient-to-br from-${event.color}-100 to-${event.color}-200 text-${event.color}-600 border-4 border-${event.color}-400`
+                                                        : 'bg-gray-200 text-gray-500 dark:bg-gray-700 dark:text-gray-400'
+                                                    }`}>
+                                                    {event.status === 'completed' ? (
+                                                        <MdCheck className="text-2xl" />
+                                                    ) : (
+                                                        <IconComponent className="text-xl" />
+                                                    )}
+                                                </div>
 
-                                                    {/* Status Badge */}
-                                                    <div className={`absolute -top-2 -right-2 px-2 py-1 text-xs font-bold rounded-full ${event.status === 'completed' ? 'bg-green-500 text-white' :
-                                                            event.status === 'active' ? 'bg-orange-500 text-white animate-pulse' :
-                                                                'bg-gray-400 text-white'
+                                                    {/* Status Badge */}                                                    <div className={`absolute -top-2 -right-2 px-2 py-1 text-xs font-bold rounded-full ${event.status === 'completed' ? 'bg-green-500 text-white' :
+                                                        event.status === 'active' ? 'bg-orange-500 text-white' :
+                                                            'bg-gray-400 text-white'
                                                         }`}>
                                                         {event.status === 'completed' ? '✓' :
                                                             event.status === 'active' ? '●' : '○'}
@@ -796,16 +759,16 @@ const ActiveSession = ({ apiData }) => {
                                                 <div className="flex-1 min-w-0">
                                                     <div className="flex items-center justify-between mb-2">
                                                         <h4 className={`text-lg font-bold ${event.status === 'completed' ? 'text-green-600 dark:text-green-400' :
-                                                                event.status === 'active' ? `text-${event.color}-600 dark:text-${event.color}-400` :
-                                                                    'text-gray-500 dark:text-gray-400'
+                                                            event.status === 'active' ? `text-${event.color}-600 dark:text-${event.color}-400` :
+                                                                'text-gray-500 dark:text-gray-400'
                                                             }`}>
                                                             {event.title}
                                                         </h4>
 
                                                         <div className="flex items-center space-x-2">
                                                             <div className={`px-3 py-1 rounded-full text-xs font-medium ${daysFromNow < 0 ? 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400' :
-                                                                    daysFromNow < 7 ? 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400' :
-                                                                        'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400'
+                                                                daysFromNow < 7 ? 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400' :
+                                                                    'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400'
                                                                 }`}>
                                                                 {daysFromNow < 0
                                                                     ? `${Math.abs(daysFromNow)} days ago`
@@ -942,8 +905,8 @@ const ActiveSession = ({ apiData }) => {
 
                                         {/* Trend Indicator */}
                                         <div className={`flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-bold ${metric.trendUp
-                                                ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                                                : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                                            ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                                            : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
                                             }`}>
                                             {metric.trendUp ? <HiTrendingUp /> : <MdTrendingDown />}
                                             <span>{metric.trend}</span>
@@ -1106,8 +1069,8 @@ const ActiveSession = ({ apiData }) => {
 
     if (loading) {
         return (
-            <Card extra="!p-6 h-full bg-white/90 dark:bg-navy-800/90 backdrop-blur-md border border-gray-100 dark:border-navy-700">
-                <div className="animate-pulse space-y-6">
+            <Card extra="!p-6 h-full bg-white dark:bg-navy-800 border border-gray-200 dark:border-navy-700">
+                <div className="space-y-6">
                     {/* Header skeleton */}
                     <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-3">
@@ -1223,9 +1186,7 @@ const ActiveSession = ({ apiData }) => {
                 </div>
             </Card>
         );
-    } const { phase, progress: phaseProgress } = getPhaseProgress();
-
-    console.log('🎨 ActiveSession rendering with final state:', {
+    } const { phase, progress: phaseProgress } = getPhaseProgress(); console.log('🎨 ActiveSession rendering with final state:', {
         loading,
         error,
         hasCurrentSession: !!currentSession,
@@ -1233,21 +1194,18 @@ const ActiveSession = ({ apiData }) => {
         sessionStatus: currentSession?.status,
         proposalCount: currentSession?.proposalCount,
         approvedCount: currentSession?.approvedCount,
-        participantCount: currentSession?.participantCount,
-        isVisible
+        participantCount: currentSession?.participantCount
     }); return (
-        <div ref={componentRef} className="relative">
-            {/* Enhanced Background with animated gradients */}
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 via-purple-50/30 to-pink-50/50 dark:from-blue-900/10 dark:via-purple-900/5 dark:to-pink-900/10 rounded-3xl blur-3xl"></div>
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-100/20 via-transparent to-purple-100/20 dark:from-blue-800/10 dark:to-purple-800/10 rounded-3xl"></div>
-
-            <Card extra="!p-8 relative bg-white/95 dark:bg-navy-800/95 backdrop-blur-xl border-2 border-gray-200/50 dark:border-navy-700/50 shadow-2xl overflow-hidden rounded-3xl">
-                {/* Animated Background Elements */}
-                <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-brand-500/10 to-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
-                <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-blue-500/10 to-teal-500/10 rounded-full blur-2xl animate-pulse delay-1000"></div>
-
-                {/* Header Section with enhanced spacing */}
-                <div className={`relative z-10 mb-8 transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+        <div className="relative">
+            <Card extra="!p-8 relative bg-white dark:bg-navy-800 border border-gray-200 dark:border-navy-700 shadow-lg rounded-2xl">                {/* Header Section */}
+                <div className="relative z-10 mb-8">
+                    {/* Simple Status Indicator */}
+                    <div className="mb-4 flex items-center justify-end">
+                        <div className="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-400">
+                            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                            <span className="font-medium">Data Loaded</span>
+                        </div>
+                    </div>
                     {/* Show error banner if there are errors but we still have data */}
                     {error && currentSession && <ErrorBanner error={error} />}
 
@@ -1256,10 +1214,8 @@ const ActiveSession = ({ apiData }) => {
                         sessionPhase={getSessionPhase()}
                         statusColor={getStatusColor()}
                     />
-                </div>
-
-                {/* Main Content Grid */}
-                <div className={`relative z-10 space-y-8 transition-all duration-700 delay-150 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+                </div>                {/* Main Content Grid */}
+                <div className="relative z-10 space-y-8">
                     {/* Metrics Section */}
                     <SessionMetrics currentSession={currentSession} />
 
@@ -1292,18 +1248,7 @@ const ActiveSession = ({ apiData }) => {
 
                     {/* Actions Section */}
                     <ActionButtons />
-                </div>
-
-                {/* Floating Elements */}
-                <div className="absolute top-4 right-4 z-20">
-                    <div className="flex items-center space-x-2">
-                        <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse shadow-lg"></div>
-                        <span className="text-xs font-medium text-gray-600 dark:text-gray-400 bg-white/80 dark:bg-navy-800/80 px-2 py-1 rounded-full backdrop-blur-sm">
-                            Live Data
-                        </span>
-                    </div>
-                </div>
-            </Card>
+                </div>            </Card>
         </div>
     );
 };

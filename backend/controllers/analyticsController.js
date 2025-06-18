@@ -3,9 +3,91 @@ import { Department } from "../models/departmentModel.js";
 import { ActivityLog } from "../models/activityLogModel.js";
 import { Proposal } from "../models/proposalModel.js";
 import { Review } from "../models/reviewModel.js";
+import moment from "moment";
 import { Sequelize, Op } from "sequelize";
 
 const { fn, col, literal } = Sequelize;
+
+export const getUserOverview = async (req, res) => {
+    try {
+        console.log('🔄 getUserOverview called, user:', req.user);
+
+        const { timeRange = 'yearly' } = req.query;
+
+        // Get basic user statistics
+        const totalUsers = await User.count();
+        const activeUsers = await User.count({
+            where: {
+                last_login: {
+                    [Op.gte]: moment().subtract(30, 'days').toDate()
+                }
+            }
+        });
+        const inactiveUsers = totalUsers - activeUsers;
+
+        // Get new users based on time range
+        let dateRange;
+        switch (timeRange) {
+            case 'monthly':
+                dateRange = moment().subtract(30, 'days').toDate();
+                break;
+            case 'quarterly':
+                dateRange = moment().subtract(90, 'days').toDate();
+                break;
+            case 'yearly':
+            default:
+                dateRange = moment().subtract(365, 'days').toDate();
+                break;
+        }
+
+        const newUsers = await User.count({
+            where: {
+                created_at: {
+                    [Op.gte]: dateRange
+                }
+            }
+        });
+
+        // Calculate growth rate (mock calculation)
+        const previousPeriodUsers = await User.count({
+            where: {
+                created_at: {
+                    [Op.lt]: dateRange
+                }
+            }
+        });
+
+        const userGrowth = previousPeriodUsers > 0 ?
+            (((newUsers / previousPeriodUsers) * 100).toFixed(1)) : 0;
+
+        console.log('✅ getUserOverview data:', {
+            totalUsers,
+            activeUsers,
+            inactiveUsers,
+            newUsers,
+            userGrowth
+        });
+
+        res.json({
+            success: true,
+            message: 'User overview data retrieved successfully',
+            data: {
+                totalUsers,
+                activeUsers,
+                inactiveUsers,
+                newUsers,
+                userGrowth: parseFloat(userGrowth)
+            }
+        });
+    } catch (error) {
+        console.error('❌ Error in getUserOverview:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error fetching user overview data',
+            error: error.message
+        });
+    }
+};
 
 // Get system overview analytics - specialized for system monitoring
 export const getSystemOverview = async (req, res) => {

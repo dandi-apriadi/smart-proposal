@@ -3,7 +3,17 @@ import {
     getSystemOverview,
     getUserActivityAnalytics,
     getProposalStatistics,
-    getActiveSessionStatus
+    getActiveSessionStatus,
+    getUserInsightsOverview,
+    getEngagementMetrics,
+    getRetentionMetrics,
+    getUserOverview,
+    getUserRoles,
+    getUserActivity,
+    getRegistrationTrends,
+    getDepartmentDistribution,
+    getUserStatus,
+    getAllAnalytics
 } from "../../controllers/analyticsController.js";
 import { verifyUser } from "../../middleware/AuthUser.js";
 
@@ -28,4 +38,16 @@ router.get('/user-activity-metrics', getUserActivityAnalytics);
 router.get('/proposal-statistics', getProposalStatistics);
 router.get('/active-session-status', getActiveSessionStatus);
 
+router.get('/insights/overview', getUserInsightsOverview);
+router.get('/insights/engagement', getEngagementMetrics);
+router.get('/insights/retention', getRetentionMetrics);
+
+// User analytics routes
+router.get('/overview', getUserOverview);
+router.get('/roles', getUserRoles);
+router.get('/activity', getUserActivity);
+router.get('/registration-trends', getRegistrationTrends);
+router.get('/department-distribution', getDepartmentDistribution);
+router.get('/user-status', getUserStatus);
+router.get('/all', getAllAnalytics);
 export default router;
