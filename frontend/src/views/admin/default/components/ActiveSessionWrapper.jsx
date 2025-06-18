@@ -7,21 +7,31 @@ import { MdWarning } from "react-icons/md";
 const ActiveSessionWrapper = () => {
     const [dashboardData, setDashboardData] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-
-    // Fetch dashboard data on component mount
+    const [error, setError] = useState(null);    // Fetch dashboard data on component mount
     useEffect(() => {
         const fetchDashboardData = async () => {
             try {
                 setLoading(true);
-                const result = await dashboardService.getAdminDashboard();
+                // Try to get specific active session status first
+                const sessionResult = await dashboardService.getActiveSessionStatus();
 
-                if (result.success) {
-                    setDashboardData(result.data);
+                if (sessionResult.success) {
+                    setDashboardData(sessionResult.data);
                     setError(null);
+                    console.log('✅ Active session status from analytics API');
                 } else {
-                    setError(result.error);
-                    console.error('Dashboard API Error:', result.error);
+                    // Fallback to general admin dashboard
+                    console.log('⚠️ Active session API failed, trying admin dashboard...');
+                    const fallbackResult = await dashboardService.getAdminDashboard();
+
+                    if (fallbackResult.success) {
+                        setDashboardData(fallbackResult.data);
+                        setError(null);
+                        console.log('✅ Using admin dashboard data as fallback');
+                    } else {
+                        setError(fallbackResult.error);
+                        console.error('❌ Both APIs failed:', fallbackResult.error);
+                    }
                 }
             } catch (err) {
                 setError('Failed to fetch dashboard data');

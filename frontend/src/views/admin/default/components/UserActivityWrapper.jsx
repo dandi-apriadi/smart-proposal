@@ -7,21 +7,31 @@ import { MdWarning } from "react-icons/md";
 const UserActivityWrapper = () => {
     const [dashboardData, setDashboardData] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-
-    // Fetch dashboard data on component mount
+    const [error, setError] = useState(null);    // Fetch dashboard data on component mount
     useEffect(() => {
         const fetchDashboardData = async () => {
             try {
                 setLoading(true);
-                const result = await dashboardService.getAdminDashboard();
+                // Try to get specific user activity metrics first
+                const activityResult = await dashboardService.getUserActivityMetrics('monthly');
 
-                if (result.success) {
-                    setDashboardData(result.data);
+                if (activityResult.success) {
+                    setDashboardData(activityResult.data);
                     setError(null);
+                    console.log('✅ User activity metrics from analytics API');
                 } else {
-                    setError(result.error);
-                    console.error('Dashboard API Error:', result.error);
+                    // Fallback to general admin dashboard
+                    console.log('⚠️ User activity API failed, trying admin dashboard...');
+                    const fallbackResult = await dashboardService.getAdminDashboard();
+
+                    if (fallbackResult.success) {
+                        setDashboardData(fallbackResult.data);
+                        setError(null);
+                        console.log('✅ Using admin dashboard data as fallback');
+                    } else {
+                        setError(fallbackResult.error);
+                        console.error('❌ Both APIs failed:', fallbackResult.error);
+                    }
                 }
             } catch (err) {
                 setError('Failed to fetch dashboard data');

@@ -8,26 +8,29 @@ const SystemOverviewWrapper = () => {
     const [dashboardData, setDashboardData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [isDemo, setIsDemo] = useState(false);
-
-    // Fetch dashboard data on component mount
+    const [isDemo, setIsDemo] = useState(false);    // Fetch dashboard data on component mount
     useEffect(() => {
         const fetchDashboardData = async () => {
             try {
                 setLoading(true);
-                const result = await dashboardService.getAdminDashboard();
-
-                if (result.success) {
-                    setDashboardData(result.data);
-                    setIsDemo(result.isDemo || false);
+                // Try to get specific system overview data first
+                const systemResult = await dashboardService.getSystemOverview(); if (systemResult.success) {
+                    setDashboardData(systemResult.data);
+                    setIsDemo(false);
                     setError(null);
-
-                    if (result.isDemo) {
-                        console.info('SystemOverview using demo data:', result.message);
-                    }
+                    console.log('✅ System overview data from analytics API:', systemResult.data);
                 } else {
-                    setError(result.error);
-                    console.error('Dashboard API Error:', result.error);
+                    // Fallback to general admin dashboard
+                    console.log('⚠️ System overview API failed, trying admin dashboard...');
+                    const fallbackResult = await dashboardService.getAdminDashboard(); if (fallbackResult.success) {
+                        setDashboardData(fallbackResult.data);
+                        setIsDemo(fallbackResult.isDemo || false);
+                        setError(null);
+                        console.log('✅ Using admin dashboard data as fallback:', fallbackResult.data);
+                    } else {
+                        setError(fallbackResult.error);
+                        console.error('❌ Both APIs failed:', fallbackResult.error);
+                    }
                 }
             } catch (err) {
                 setError('Failed to fetch dashboard data');
@@ -74,11 +77,12 @@ const SystemOverviewWrapper = () => {
                         className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
                     >
                         Retry
-                    </button>
-                </div>
+                    </button>                </div>
             </div>
         );
-    }    // Render SystemOverview with API data
+    }
+
+    // Render SystemOverview with API data
     return (
         <div className="p-4">
             <SystemOverview apiData={dashboardData} isDemo={isDemo} />

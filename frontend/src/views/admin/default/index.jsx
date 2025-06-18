@@ -82,9 +82,7 @@ const AdminDashboard = () => {
     });
 
     // Use real data if available, otherwise use fallback
-    const data = dashboardData || getFallbackData();
-
-    // Process data for components
+    const data = dashboardData || getFallbackData();    // Process data for components using real API data
     const proposalStats = {
         total: data.overview?.total_proposals || 0,
         approved: data.proposal_stats?.find(p => p.status === 'approved')?.count || 0,
@@ -113,9 +111,7 @@ const AdminDashboard = () => {
         completed: 8,
         upcoming: 0,
         avgDuration: "4.5 months"
-    };
-
-    // Chart data
+    };    // Chart data using real API data
     const proposalChartData = {
         labels: ['Approved', 'Pending', 'Rejected'],
         datasets: [

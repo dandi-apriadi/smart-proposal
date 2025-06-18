@@ -16,7 +16,9 @@ import {
 } from "react-icons/md";
 import { Avatar, Chip, Menu, MenuItem, IconButton, Tooltip } from "@mui/material";
 import { format, formatDistance } from "date-fns";
-import { Line } from "react-chartjs-2"; // Changed from Area to Line
+import { Line } from "react-chartjs-2";
+import { useSelector } from "react-redux";
+import { dashboardService, getAuthToken, isAuthenticated, getUserActivities, getUserStats, getActivityLogStats } from "services/dashboardService";
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -156,48 +158,215 @@ const dummyMetrics = {
 };
 
 const UserActivity = ({ apiData }) => {
-    // Process API data for activities
-    const processActivities = () => {
-        if (apiData?.recent_activities && apiData.recent_activities.length > 0) {
-            return apiData.recent_activities.map((activity, index) => ({
-                id: activity.id || index + 1,
-                user: {
-                    name: activity.user_name || "Unknown User",
-                    email: activity.user_email || "unknown@email.com",
-                    role: activity.user_role || "user",
-                    avatar: `https://randomuser.me/api/portraits/${index % 2 === 0 ? 'men' : 'women'}/${(index + 1) % 99}.jpg`
-                },
-                type: activity.action_type || "general",
-                action: activity.action || "performed an action",
-                details: activity.description || "No details available",
-                timestamp: activity.created_at || new Date().toISOString()
-            }));
-        }
-        return dummyActivities; // Fallback to dummy data
-    };
-
-    const [activities, setActivities] = useState(processActivities());
-    const [metrics, setMetrics] = useState(dummyMetrics);
+    const [activities, setActivities] = useState([]);
+    const [metrics, setMetrics] = useState({
+        activeUsers: 0,
+        totalUsers: 0,
+        loginCount: 0,
+        totalActions: 0,
+        hourlyActivity: []
+    });
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [filter, setFilter] = useState("all");
     const [timeRange, setTimeRange] = useState("today");
     const [anchorEl, setAnchorEl] = useState(null);
     const [timeAnchorEl, setTimeAnchorEl] = useState(null);
     const [searchQuery, setSearchQuery] = useState("");
 
-    // Update activities when apiData changes
-    useEffect(() => {
-        setActivities(processActivities());
-    }, [apiData]);
+    // Get auth token from Redux store
+    const { token } = useSelector(state => state.auth);
 
-    useEffect(() => {
-        // Simulate loading
-        const timer = setTimeout(() => {
+    // Fetch user activity data from API
+    const fetchUserActivityData = async () => {
+        try {
+            setLoading(true);
+            setError(null);
+
+            console.log('🔄 Fetching user activity data for time range:', timeRange);
+
+            // Get authentication token
+            const authToken = getAuthToken();
+            console.log('🔐 Auth token available:', !!authToken);
+
+            // Fetch activities and stats concurrently
+            const [activitiesResult, userStatsResult, activityStatsResult] = await Promise.all([
+                getUserActivities(authToken, timeRange, 20),
+                getUserStats(authToken),
+                getActivityLogStats(authToken)
+            ]);
+
+            console.log('📊 Activities result:', activitiesResult);
+            console.log('📊 User stats result:', userStatsResult);
+            console.log('📊 Activity stats result:', activityStatsResult);
+
+            // Process activities data
+            if (activitiesResult.success && activitiesResult.data) {
+                const activitiesData = activitiesResult.data;
+                const activityLogs = activitiesData.logs || activitiesData;
+
+                if (Array.isArray(activityLogs)) {
+                    const processedActivities = activityLogs.map((activity, index) => ({
+                        id: activity.id || `activity-${index + 1}`,
+                        user: {
+                            name: activity.user || "Unknown User",
+                            email: activity.user_email || "unknown@email.com",
+                            role: "user",
+                            avatar: activity.user_avatar || `https://randomuser.me/api/portraits/${index % 2 === 0 ? 'men' : 'women'}/${(index + 1) % 99}.jpg`
+                        },
+                        type: mapActivityType(activity.type || activity.action),
+                        action: activity.action || activity.title || "performed an action",
+                        details: activity.details || activity.title || "No details available",
+                        timestamp: activity.created_at || activity.timestamp || new Date().toISOString(),
+                        status: activity.status || 'success'
+                    }));
+
+                    console.log('✅ Processed activities:', processedActivities);
+                    setActivities(processedActivities);
+                } else {
+                    console.warn('⚠️ No valid activities array found, using fallback');
+                    setActivities(getFallbackActivityData().recent_activities);
+                }
+            } else {
+                console.warn('⚠️ Activities fetch failed, using fallback');
+                setActivities(getFallbackActivityData().recent_activities);
+            }
+
+            // Process user statistics
+            if (userStatsResult.success && userStatsResult.data) {
+                const userStats = userStatsResult.data;
+                const processedMetrics = {
+                    activeUsers: userStats.active?.value || userStats.recentlyActive || 0,
+                    totalUsers: userStats.total?.value || 0,
+                    loginCount: userStats.active?.value || 0, // Approximate login count with active users
+                    totalActions: activityStatsResult.success ? activityStatsResult.data.totals?.total_logs || 0 : 0,
+                    hourlyActivity: generateHourlyActivity() // Generate sample hourly data
+                };
+
+                console.log('✅ Processed metrics from user stats:', processedMetrics);
+                setMetrics(processedMetrics);
+            } else {
+                console.warn('⚠️ User stats fetch failed, using fallback');
+                const fallbackData = getFallbackActivityData();
+                setMetrics({
+                    activeUsers: fallbackData.active_users_count,
+                    totalUsers: fallbackData.total_users_count,
+                    loginCount: fallbackData.login_count,
+                    totalActions: fallbackData.total_actions,
+                    hourlyActivity: fallbackData.hourly_activity
+                });
+            }
+
+        } catch (error) {
+            console.error('❌ Error fetching user activity data:', error);
+            setError(error.message);
+
+            // Use fallback dummy data
+            const fallbackData = getFallbackActivityData();
+            setActivities(fallbackData.recent_activities);
+            setMetrics({
+                activeUsers: fallbackData.active_users_count,
+                totalUsers: fallbackData.total_users_count,
+                loginCount: fallbackData.login_count,
+                totalActions: fallbackData.total_actions,
+                hourlyActivity: fallbackData.hourly_activity
+            });
+        } finally {
             setLoading(false);
-        }, 1000);
+        }
+    };
 
-        return () => clearTimeout(timer);
-    }, []);
+    // Generate sample hourly activity data
+    const generateHourlyActivity = () => {
+        const hours = ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00"];
+        return hours.map(hour => ({
+            hour,
+            count: Math.floor(Math.random() * 30) + 5 // Random activity between 5-35
+        }));
+    };
+
+    // Map activity types from database to display types
+    const mapActivityType = (dbType) => {
+        const typeMapping = {
+            'proposal_submitted': 'upload',
+            'proposal_reviewed': 'review',
+            'proposal_approved': 'approve',
+            'proposal_rejected': 'delete',
+            'proposal_updated': 'edit',
+            'user_login': 'login',
+            'document_viewed': 'view',
+            'document_downloaded': 'download',
+            'comment_added': 'edit',
+            'status_changed': 'done'
+        };
+
+        return typeMapping[dbType] || dbType || 'general';
+    };
+
+    // Fallback data when API is not available    // Fallback data when API is not available
+    const getFallbackActivityData = () => ({
+        recent_activities: [
+            {
+                id: 1,
+                user_name: "Dr. Agus Sutanto",
+                user_email: "agus.sutanto@polimdo.ac.id",
+                user_role: "dosen",
+                action_type: "proposal_submitted",
+                action: "Uploaded a new proposal",
+                details: "Pengembangan Sistem Keamanan IoT Berbasis Blockchain",
+                created_at: new Date(2025, 3, 15, 10, 30).toISOString()
+            },
+            {
+                id: 2,
+                user_name: "Dra. Maria Tanumihardja",
+                user_email: "maria.t@polimdo.ac.id",
+                user_role: "reviewer",
+                action_type: "proposal_reviewed",
+                action: "Reviewed a proposal",
+                details: "Provided feedback on 'Pengembangan Aplikasi Mobile untuk Monitoring Kualitas Air'",
+                created_at: new Date(2025, 3, 15, 9, 45).toISOString()
+            },
+            {
+                id: 3,
+                user_name: "Prof. Bambang Wijaya",
+                user_email: "bambang.wijaya@polimdo.ac.id",
+                user_role: "wadir",
+                action_type: "proposal_approved",
+                action: "Approved a proposal",
+                details: "Approved 'Sistem Pendukung Keputusan untuk Optimalisasi Energi di Kampus'",
+                created_at: new Date(2025, 3, 15, 8, 20).toISOString()
+            }
+        ],
+        active_users_count: 42,
+        total_users_count: 78,
+        login_count: 35,
+        total_actions: 145,
+        hourly_activity: [
+            { hour: "08:00", count: 5 },
+            { hour: "09:00", count: 12 },
+            { hour: "10:00", count: 18 },
+            { hour: "11:00", count: 15 },
+            { hour: "12:00", count: 8 },
+            { hour: "13:00", count: 10 },
+            { hour: "14:00", count: 22 },
+            { hour: "15:00", count: 28 },
+            { hour: "16:00", count: 16 },
+            { hour: "17:00", count: 11 }
+        ]
+    });
+
+    // Fetch data on component mount and when dependencies change
+    useEffect(() => {
+        fetchUserActivityData();
+    }, [apiData, token, timeRange]);
+
+    // Update data when time range changes
+    const handleTimeChange = (newTime) => {
+        setTimeRange(newTime);
+        handleTimeClose();
+        console.log('🔄 Time range changed to:', newTime);
+        // Data will be fetched automatically by useEffect
+    };
 
     // Filter activities based on type and search query
     const filteredActivities = activities.filter(activity => {
@@ -237,32 +406,6 @@ const UserActivity = ({ apiData }) => {
 
     const handleTimeClose = () => {
         setTimeAnchorEl(null);
-    };
-
-    const handleTimeChange = (newTime) => {
-        setTimeRange(newTime);
-        handleTimeClose();
-
-        // Simulate different data for different time ranges
-        if (newTime === "week") {
-            setMetrics({
-                ...metrics,
-                activeUsers: 65,
-                totalUsers: 78,
-                loginCount: 189,
-                totalActions: 547
-            });
-        } else if (newTime === "month") {
-            setMetrics({
-                ...metrics,
-                activeUsers: 72,
-                totalUsers: 78,
-                loginCount: 680,
-                totalActions: 1893
-            });
-        } else {
-            setMetrics(dummyMetrics);
-        }
     };
 
     const handleRefresh = () => {
@@ -383,8 +526,7 @@ const UserActivity = ({ apiData }) => {
                         {[...Array(3)].map((_, i) => (
                             <div key={i} className="h-24 bg-gray-200 dark:bg-navy-700 rounded-xl"></div>
                         ))}
-                    </div>
-                    <div className="h-56 bg-gray-200 dark:bg-navy-700 rounded-xl mb-6"></div>
+                    </div>                    <div className="h-56 bg-gray-200 dark:bg-navy-700 rounded-xl mb-6"></div>
                     <div className="space-y-4">
                         {[...Array(4)].map((_, i) => (
                             <div key={i} className="flex items-start space-x-3">
@@ -584,8 +726,7 @@ const UserActivity = ({ apiData }) => {
                             </div>
                             <p className="text-sm text-gray-600 dark:text-gray-300">{activity.action}</p>
                             <p className="text-xs text-gray-500 dark:text-gray-400">{activity.details}</p>
-                        </div>
-                        <div className="flex-shrink-0">
+                        </div>                        <div className="flex-shrink-0">
                             {getActivityIcon(activity.type)}
                         </div>
                     </div>

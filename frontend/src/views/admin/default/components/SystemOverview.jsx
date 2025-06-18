@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { MdOutlineBarChart, MdOutlineCheckCircle, MdOutlineCloud, MdPeopleOutline, MdOutlineDescription, MdOutlineNotificationsActive, MdOutlineHealthAndSafety, MdOutlineSettings, MdTrendingUp, MdTrendingDown, MdOutlineWarning } from "react-icons/md";
+import { MdOutlineBarChart, MdOutlineCheckCircle, MdOutlineCloud, MdPeopleOutline, MdOutlineDescription, MdOutlineNotificationsActive, MdOutlineHealthAndSafety, MdOutlineSettings, MdTrendingUp, MdTrendingDown, MdOutlineWarning, MdOutlineSchedule, MdOutlineMemory, MdOutlineSecurity, MdOutlineAttachMoney, MdOutlineSpeed, MdOutlineRefresh, MdOutlineAdd, MdOutlineSearch, MdOutlineAnalytics } from "react-icons/md";
 import Card from "components/card";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+
 // Create fallback chart components that don't depend on Chart.js
 const FallbackLineChart = ({ chartData }) => {
     const [hoveredBar, setHoveredBar] = useState(null);
@@ -184,7 +185,10 @@ const FallbackRadialChart = ({ chartData }) => {
     const colors = [
         { main: "#10B981", light: "#D1FAE5", accent: "#34D399", label: "Approved" },
         { main: "#EF4444", light: "#FEE2E2", accent: "#F87171", label: "Rejected" },
-        { main: "#F59E0B", light: "#FEF3C7", accent: "#FBBF24", label: "Pending" }
+        { main: "#F59E0B", light: "#FEF3C7", accent: "#FBBF24", label: "Pending" },
+        { main: "#4318FF", light: "#E0E7FF", accent: "#6366F1", label: "Under Review" },
+        { main: "#01B574", light: "#D1FAE5", accent: "#10B981", label: "Submitted" },
+        { main: "#868CFF", light: "#E0E7FF", accent: "#8B5CF6", label: "Draft" }
     ];
 
     return (
@@ -208,10 +212,10 @@ const FallbackRadialChart = ({ chartData }) => {
                             const isActive = activeSegment === index;
 
                             // Calculate dimensions for concentric circles
-                            const radius = 38 - (index * 8);
+                            const radius = 38 - (index * 6);
                             const circumference = 2 * Math.PI * radius;
                             const strokeDashoffset = circumference * (1 - (isAnimated ? percentage / 100 : 0));
-                            const strokeWidth = 6;
+                            const strokeWidth = 5;
 
                             return (
                                 <g key={index}
@@ -221,17 +225,13 @@ const FallbackRadialChart = ({ chartData }) => {
                                     {/* Enhanced background with subtle gradient */}
                                     <defs>
                                         <linearGradient id={`bg-gradient-${index}`} x1="0%" y1="0%" x2="100%" y2="100%">
-                                            <stop offset="0%" stopColor={colors[index].light} stopOpacity="0.6" />
-                                            <stop offset="100%" stopColor={colors[index].light} stopOpacity="0.3" />
+                                            <stop offset="0%" stopColor={colors[index]?.light || "#E5E7EB"} stopOpacity="0.6" />
+                                            <stop offset="100%" stopColor={colors[index]?.light || "#E5E7EB"} stopOpacity="0.3" />
                                         </linearGradient>
                                         <linearGradient id={`fg-gradient-${index}`} x1="0%" y1="0%" x2="100%" y2="100%">
-                                            <stop offset="0%" stopColor={colors[index].main} />
-                                            <stop offset="100%" stopColor={colors[index].accent || colors[index].main} />
+                                            <stop offset="0%" stopColor={colors[index]?.main || "#6B7280"} />
+                                            <stop offset="100%" stopColor={colors[index]?.accent || colors[index]?.main || "#6B7280"} />
                                         </linearGradient>
-                                        <filter id={`glow-${index}`} x="-20%" y="-20%" width="140%" height="140%">
-                                            <feGaussianBlur stdDeviation="2" result="blur" />
-                                            <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                                        </filter>
                                     </defs>
 
                                     {/* Pulsing background effect for active segment */}
@@ -241,7 +241,7 @@ const FallbackRadialChart = ({ chartData }) => {
                                             cy="50"
                                             r={radius}
                                             fill="none"
-                                            stroke={colors[index].main}
+                                            stroke={colors[index]?.main || "#6B7280"}
                                             strokeWidth={strokeWidth + 2}
                                             strokeOpacity="0.3"
                                             className="animate-pulse"
@@ -271,57 +271,22 @@ const FallbackRadialChart = ({ chartData }) => {
                                         strokeDasharray={circumference}
                                         strokeDashoffset={strokeDashoffset}
                                         transform="rotate(-90 50 50)"
-                                        className={`transition-all duration-1000 ease-out ${isActive ? 'filter' : ''}`}
-                                        style={{
-                                            filter: isActive ? `url(#glow-${index})` : 'none',
-                                            transition: 'all 0.3s ease'
-                                        }}
+                                        className="transition-all duration-1000 ease-out"
                                     />
 
                                     {/* Dynamic segment label with better positioning and styling */}
                                     <text
                                         x={50 + (radius * Math.cos(Math.PI * 0.75))}
                                         y={50 + (radius * Math.sin(Math.PI * 0.75))}
-                                        fill={colors[index].main}
-                                        fontSize={isActive ? "9" : "7"}
+                                        fill={colors[index]?.main || "#6B7280"}
+                                        fontSize={isActive ? "8" : "6"}
                                         fontWeight="bold"
                                         textAnchor="middle"
                                         dominantBaseline="middle"
-                                        className={`pointer-events-none select-none transition-all duration-300 ${isActive ? 'drop-shadow-md' : ''}`}
-                                        style={{
-                                            transition: 'all 0.3s ease',
-                                            opacity: isActive ? 1 : 0.9
-                                        }}
+                                        className="pointer-events-none select-none transition-all duration-300"
                                     >
                                         {chartData.labels[index]}
                                     </text>
-
-                                    {/* Interactive mini icon */}
-                                    <g
-                                        className={`transition-all duration-300 ${isActive ? 'scale-110' : 'scale-100'}`}
-                                        style={{ transformOrigin: 'center', transition: 'all 0.3s ease' }}
-                                    >
-                                        <circle
-                                            cx={50 + (radius * Math.cos(Math.PI * 0.25))}
-                                            cy={50 + (radius * Math.sin(Math.PI * 0.25))}
-                                            r="3.5"
-                                            fill="#fff"
-                                            stroke={colors[index].main}
-                                            strokeWidth="1"
-                                            className={`${isActive ? 'drop-shadow-lg' : 'drop-shadow-sm'}`}
-                                        />
-                                        <text
-                                            x={50 + (radius * Math.cos(Math.PI * 0.25))}
-                                            y={50 + (radius * Math.sin(Math.PI * 0.25))}
-                                            fill={colors[index].main}
-                                            fontSize="5"
-                                            fontWeight="bold"
-                                            textAnchor="middle"
-                                            dominantBaseline="middle"
-                                        >
-                                            {index + 1}
-                                        </text>
-                                    </g>
 
                                     {/* Enhanced percentage badge with animation for active segment */}
                                     {isActive && (
@@ -329,21 +294,11 @@ const FallbackRadialChart = ({ chartData }) => {
                                             <circle
                                                 cx={50 + (radius * Math.cos(-0.5 * Math.PI))}
                                                 cy={50 + (radius * Math.sin(-0.5 * Math.PI))}
-                                                r="13"
+                                                r="12"
                                                 fill="white"
-                                                stroke={colors[index].main}
+                                                stroke={colors[index]?.main || "#6B7280"}
                                                 strokeWidth="1.5"
                                                 className="drop-shadow-md"
-                                            />
-                                            <circle
-                                                cx={50 + (radius * Math.cos(-0.5 * Math.PI))}
-                                                cy={50 + (radius * Math.sin(-0.5 * Math.PI))}
-                                                r="10"
-                                                fill="white"
-                                                strokeWidth="0"
-                                                strokeDasharray="1,1"
-                                                className="animate-ping absolute opacity-30"
-                                                style={{ stroke: colors[index].main }}
                                             />
                                             <text
                                                 x={50 + (radius * Math.cos(-0.5 * Math.PI))}
@@ -351,7 +306,7 @@ const FallbackRadialChart = ({ chartData }) => {
                                                 textAnchor="middle"
                                                 dominantBaseline="middle"
                                                 className="text-xs font-bold"
-                                                fill={colors[index].main}
+                                                fill={colors[index]?.main || "#6B7280"}
                                             >
                                                 {percentage}%
                                             </text>
@@ -362,86 +317,192 @@ const FallbackRadialChart = ({ chartData }) => {
                         })}
                     </svg>
                 </div>
-
-                {/* Removed legend buttons section completely */}
             </div>
         </div>
     );
 };
 
-const SystemOverview = ({ data }) => {
+const SystemOverview = ({ apiData, isDemo }) => {
     const navigate = useNavigate();
 
+    // Debug logging
+    console.log('🔍 SystemOverview received apiData:', apiData);
+    console.log('🔍 SystemOverview isDemo:', isDemo);    // Process API data with fallback values - Updated to match actual backend structure
+    const processedData = {
+        // Basic overview data from backend
+        systemHealth: 98, // Mock data - backend doesn't provide system health yet
+        activeUsers: apiData?.overview?.active_users || 0,
+        activeSessions: 1, // This would come from session management
+        totalProposals: apiData?.overview?.total_proposals || 0,
+        totalUsers: apiData?.overview?.total_users || 0,
+        totalDepartments: apiData?.overview?.total_departments || 0,
+
+        // Proposal statistics from backend (proposal_stats array)
+        pendingReviews: apiData?.proposal_stats?.find(p => p.status === 'pending')?.count ||
+            apiData?.proposal_stats?.find(p => p.status === 'submitted')?.count || 0,
+        approvedProposals: apiData?.proposal_stats?.find(p => p.status === 'approved')?.count || 0,
+        rejectedProposals: apiData?.proposal_stats?.find(p => p.status === 'rejected')?.count || 0,
+        underReviewProposals: apiData?.proposal_stats?.find(p => p.status === 'under_review')?.count || 0,
+
+        // Recent activities from backend (already properly structured)
+        recentActivities: apiData?.recent_activities || [],
+
+        // Monthly trends from backend
+        monthlyTrends: apiData?.monthly_trends || [],
+
+        // Mock data for features not yet implemented in backend
+        memoryUsage: Math.floor(Math.random() * 30) + 45, // 45-75%
+        cpuUsage: Math.floor(Math.random() * 25) + 25, // 25-50%
+        diskUsage: Math.floor(Math.random() * 40) + 30, // 30-70%
+        databaseStatus: 'healthy', // Mock - should come from backend health check
+
+        // Financial overview data (mock - not implemented in backend yet)
+        totalBudget: 1500000, // Mock budget data
+        usedBudget: 850000,
+        pendingBudget: 320000,
+
+        // Performance metrics (mock - not implemented in backend yet)
+        avgResponseTime: Math.floor(Math.random() * 100) + 180, // 180-280ms
+        successRate: 99.2,
+        errorRate: 0.8,
+        securityIncidents: 0,
+        lastBackup: new Date().toISOString()
+    };
+
+    console.log('🔍 SystemOverview processedData:', processedData);
+
+    // Calculate trends (simplified - in real app, this would compare with previous period)
+    const calculateTrend = (current, category) => {
+        // Mock trend calculation based on current values - in real app, this would use historical data
+        const trends = {
+            activeUsers: current > 10 ? "+12.5%" : "+5.2%",
+            totalProposals: current > 15 ? "+5.8%" : "+2.1%",
+            pendingReviews: current > 5 ? "-3.2%" : "+1.5%",
+            approvedProposals: current > 8 ? "+7.2%" : "+4.8%"
+        };
+        return trends[category] || "+0%";
+    };
+
     // Array of metric cards to display in the system overview
-    const metricCards = [
-        {
-            title: "System Health",
-            value: data.systemHealth + "%",
-            icon: <MdOutlineHealthAndSafety className="h-7 w-7" />,
-            iconBg: "bg-green-100",
-            iconColor: "text-green-700",
-            trend: "+2.5%",
-            trendColor: "text-green-500",
-            trendIcon: <MdTrendingUp className="h-4 w-4" />,
-        },
-        {
-            title: "Active Users",
-            value: data.activeUsers,
-            icon: <MdPeopleOutline className="h-7 w-7" />,
-            iconBg: "bg-blue-100",
-            iconColor: "text-blue-700",
-            trend: "+12.5%",
-            trendColor: "text-green-500",
-            trendIcon: <MdTrendingUp className="h-4 w-4" />,
-        },
-        {
-            title: "Active Sessions",
-            value: data.activeSessions,
-            icon: <MdOutlineCloud className="h-7 w-7" />,
-            iconBg: "bg-purple-100",
-            iconColor: "text-purple-700",
-            trend: "0%",
-            trendColor: "text-gray-500",
-            trendIcon: null,
-        },
-        {
-            title: "Total Proposals",
-            value: data.totalProposals,
-            icon: <MdOutlineDescription className="h-7 w-7" />,
-            iconBg: "bg-amber-100",
-            iconColor: "text-amber-700",
-            trend: "+5.8%",
-            trendColor: "text-green-500",
-            trendIcon: <MdTrendingUp className="h-4 w-4" />,
-        },
-        {
-            title: "Pending Reviews",
-            value: data.pendingReviews,
-            icon: <MdOutlineWarning className="h-7 w-7" />,
-            iconBg: "bg-orange-100",
-            iconColor: "text-orange-700",
-            trend: "-3.2%",
-            trendColor: "text-red-500",
-            trendIcon: <MdTrendingDown className="h-4 w-4" />,
-        },
-        {
-            title: "Approved Proposals",
-            value: data.approvedProposals,
-            icon: <MdOutlineCheckCircle className="h-7 w-7" />,
-            iconBg: "bg-green-100",
-            iconColor: "text-green-700",
-            trend: "+7.2%",
-            trendColor: "text-green-500",
-            trendIcon: <MdTrendingUp className="h-4 w-4" />,
-        },
+    const metricCards = [{
+        title: "System Health",
+        value: processedData.systemHealth + "%",
+        icon: <MdOutlineHealthAndSafety className="h-7 w-7" />,
+        iconBg: processedData.systemHealth > 95 ? "bg-green-100" : processedData.systemHealth > 85 ? "bg-yellow-100" : "bg-red-100",
+        iconColor: processedData.systemHealth > 95 ? "text-green-700" : processedData.systemHealth > 85 ? "text-yellow-700" : "text-red-700",
+        trend: processedData.databaseStatus === 'healthy' ? "Healthy" : "Check needed",
+        trendColor: processedData.databaseStatus === 'healthy' ? "text-green-500" : "text-red-500",
+        trendIcon: processedData.databaseStatus === 'healthy' ? <MdTrendingUp className="h-4 w-4" /> : <MdTrendingDown className="h-4 w-4" />,
+    },
+    {
+        title: "Active Users",
+        value: processedData.activeUsers.toLocaleString(),
+        icon: <MdPeopleOutline className="h-7 w-7" />,
+        iconBg: "bg-blue-100",
+        iconColor: "text-blue-700",
+        trend: calculateTrend(processedData.activeUsers, 'activeUsers'),
+        trendColor: "text-green-500",
+        trendIcon: <MdTrendingUp className="h-4 w-4" />,
+    },
+    {
+        title: "Total Users",
+        value: processedData.totalUsers.toLocaleString(),
+        icon: <MdPeopleOutline className="h-7 w-7" />,
+        iconBg: "bg-indigo-100",
+        iconColor: "text-indigo-700",
+        trend: `${processedData.totalDepartments} Depts`,
+        trendColor: "text-gray-500",
+        trendIcon: <MdOutlineSettings className="h-4 w-4" />,
+    },
+    {
+        title: "Total Proposals",
+        value: processedData.totalProposals.toLocaleString(),
+        icon: <MdOutlineDescription className="h-7 w-7" />,
+        iconBg: "bg-amber-100",
+        iconColor: "text-amber-700",
+        trend: calculateTrend(processedData.totalProposals, 'totalProposals'),
+        trendColor: "text-green-500",
+        trendIcon: <MdTrendingUp className="h-4 w-4" />,
+    },
+    {
+        title: "Approved",
+        value: processedData.approvedProposals.toLocaleString(),
+        icon: <MdOutlineCheckCircle className="h-7 w-7" />,
+        iconBg: "bg-green-100",
+        iconColor: "text-green-700",
+        trend: `${Math.round((processedData.approvedProposals / Math.max(processedData.totalProposals, 1)) * 100)}%`,
+        trendColor: "text-green-500",
+        trendIcon: <MdTrendingUp className="h-4 w-4" />,
+    },
+    {
+        title: "Pending Reviews",
+        value: processedData.pendingReviews.toLocaleString(),
+        icon: <MdOutlineWarning className="h-7 w-7" />,
+        iconBg: "bg-orange-100",
+        iconColor: "text-orange-700",
+        trend: processedData.underReviewProposals > 0 ? `+${processedData.underReviewProposals} reviewing` : "No backlog",
+        trendColor: processedData.pendingReviews > 10 ? "text-red-500" : "text-green-500",
+        trendIcon: processedData.pendingReviews > 10 ? <MdTrendingDown className="h-4 w-4" /> : <MdTrendingUp className="h-4 w-4" />,
+    },
+    ];
+
+    // Resource utilization data for progress bars
+    const resourceMetrics = [
+        { name: "Memory", value: processedData.memoryUsage, max: 100, color: "bg-blue-500", bgColor: "bg-blue-100" },
+        { name: "CPU", value: processedData.cpuUsage, max: 100, color: "bg-green-500", bgColor: "bg-green-100" },
+        { name: "Disk", value: processedData.diskUsage, max: 100, color: "bg-yellow-500", bgColor: "bg-yellow-100" },
+        { name: "Response Time", value: Math.min(processedData.avgResponseTime / 10, 100), max: 100, color: "bg-purple-500", bgColor: "bg-purple-100" }
+    ];    // Recent activities with proper backend data structure and fallback
+    const recentActivities = processedData.recentActivities.length > 0 ?
+        processedData.recentActivities.map((activity, index) => ({
+            id: activity.id || index + 1,
+            user: activity.user_name || activity.user || "System",
+            action: activity.action || "System activity",
+            time: activity.created_at ?
+                new Date(activity.created_at).toLocaleString('id-ID', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    day: '2-digit',
+                    month: 'short',
+                    year: 'numeric'
+                }) : "Unknown time",
+            type: activity.type || (
+                activity.action?.includes('proposal') ? 'proposal' :
+                    activity.action?.includes('user') || activity.action?.includes('login') ? 'user' :
+                        activity.action?.includes('system') || activity.action?.includes('backup') ? 'system' :
+                            'other'
+            )
+        })) : [
+            { id: 1, user: "System", action: "Database backup completed", time: "2 jam lalu", type: "system" },
+            { id: 2, user: "Admin", action: "New user registered", time: "3 jam lalu", type: "user" },
+            { id: 3, user: "Dr. Ahmad", action: "Proposal submitted", time: "5 jam lalu", type: "proposal" },
+            { id: 4, user: "System", action: "Security scan completed", time: "1 hari lalu", type: "security" }
+        ];
+
+    // Budget calculation
+    const budgetUtilization = processedData.totalBudget > 0 ?
+        Math.round((processedData.usedBudget / processedData.totalBudget) * 100) : 0;    // Quick actions data
+    const quickActions = [
+        { label: "Tambah User", icon: <MdOutlineAdd />, action: () => navigate('/admin/users/add'), color: "bg-blue-500" },
+        { label: "Proposal Baru", icon: <MdOutlineDescription />, action: () => navigate('/admin/proposals/new'), color: "bg-green-500" },
+        { label: "Lihat Analytics", icon: <MdOutlineAnalytics />, action: () => navigate('/admin/analytics'), color: "bg-purple-500" },
+        { label: "Pengaturan Sistem", icon: <MdOutlineSettings />, action: () => navigate('/admin/settings'), color: "bg-gray-500" }
     ];
 
     return (
         <Card extra={"p-5"}>
             <div className="mb-6 flex items-center justify-between">
-                <h4 className="text-2xl font-bold text-navy-700 dark:text-white">
-                    System Overview
-                </h4>
+                <div>
+                    <h4 className="text-2xl font-bold text-navy-700 dark:text-white">
+                        System Overview
+                    </h4>                    {isDemo && (
+                        <div className="mt-2">
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
+                                Data Demo - Silakan login untuk data real-time
+                            </span>
+                        </div>
+                    )}
+                </div>
                 <button
                     onClick={() => navigate('/admin/dashboard/details')}
                     className="linear rounded-lg bg-lightPrimary px-4 py-2 text-base font-medium text-brand-500 transition duration-200 hover:bg-gray-100 active:bg-gray-200 dark:bg-navy-700 dark:hover:bg-white/20 dark:active:bg-white/10"
@@ -450,537 +511,223 @@ const SystemOverview = ({ data }) => {
                 </button>
             </div>
 
-            <div className="grid grid-cols-6 gap-4 md:grid-cols-6 lg:grid-cols-12 xl:grid-cols-12">
+            {/* Main Metrics Grid */}
+            <div className="grid grid-cols-6 gap-4 md:grid-cols-6 lg:grid-cols-12 xl:grid-cols-12 mb-6">
                 {metricCards.map((card, index) => (
-                    <div key={index} className="rounded-xl bg-white p-4 shadow-sm dark:bg-navy-800 col-span-1 md:col-span-2 lg:col-span-2">
-                        <div className="flex items-center justify-between">
-                            <div className={`rounded-full ${card.iconBg} p-3 ${card.iconColor}`}>
-                                {card.icon}
+                    <div key={index} className="col-span-6 md:col-span-3 lg:col-span-2 xl:col-span-2">
+                        <div className="relative rounded-lg bg-white p-4 shadow-sm dark:bg-navy-800 border border-gray-100 dark:border-navy-700 hover:shadow-md transition-shadow duration-200">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center">
+                                    <div className={`rounded-full p-2 ${card.iconBg} ${card.iconColor}`}>
+                                        {card.icon}
+                                    </div>
+                                    <div className="ml-3">
+                                        <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                                            {card.title}
+                                        </p>
+                                        <p className="text-2xl font-bold text-navy-700 dark:text-white">
+                                            {card.value}
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
-                            <div className="flex items-center">
-                                <span className={`mr-1 text-sm font-medium ${card.trendColor}`}>
-                                    {card.trend}
-                                </span>
-                                {card.trendIcon}
+                            <div className="mt-3 flex items-center justify-between">
+                                <div className={`flex items-center text-sm font-medium ${card.trendColor}`}>
+                                    {card.trendIcon}
+                                    <span className="ml-1">{card.trend}</span>
+                                </div>
                             </div>
-                        </div>
-                        <div className="mt-3">
-                            <h5 className="text-sm font-medium text-gray-600 dark:text-white">
-                                {card.title}
-                            </h5>
-                            <h4 className="text-2xl font-bold text-navy-700 dark:text-white">
-                                {card.value}
-                            </h4>
                         </div>
                     </div>
                 ))}
+            </div>
+
+            {/* Additional Information Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">                {/* Resource Utilization */}
+                <Card extra={"p-4"}>
+                    <div className="flex items-center justify-between mb-4">
+                        <h5 className="text-lg font-bold text-navy-700 dark:text-white flex items-center">
+                            <MdOutlineMemory className="mr-2 text-blue-500" />
+                            Penggunaan Resource
+                        </h5>
+                        <button className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                            <MdOutlineRefresh className="h-4 w-4" />
+                        </button>
+                    </div>
+                    <div className="space-y-4">
+                        {resourceMetrics.map((metric, index) => (
+                            <div key={index}>
+                                <div className="flex justify-between items-center mb-1">
+                                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                                        {metric.name}
+                                    </span>
+                                    <span className="text-sm font-bold text-navy-700 dark:text-white">
+                                        {metric.value}%
+                                    </span>
+                                </div>
+                                <div className={`w-full ${metric.bgColor} rounded-full h-2 dark:bg-navy-700`}>
+                                    <div
+                                        className={`${metric.color} h-2 rounded-full transition-all duration-500`}
+                                        style={{ width: `${Math.min(metric.value, 100)}%` }}
+                                    ></div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </Card>{/* Budget Overview */}
+                <Card extra={"p-4"}>
+                    <div className="flex items-center justify-between mb-4">
+                        <h5 className="text-lg font-bold text-navy-700 dark:text-white flex items-center">
+                            <MdOutlineAttachMoney className="mr-2 text-green-500" />
+                            Ringkasan Budget
+                        </h5>
+                    </div>
+                    <div className="space-y-4">
+                        <div className="text-center">
+                            <div className="text-3xl font-bold text-navy-700 dark:text-white">
+                                Rp {processedData.totalBudget.toLocaleString('id-ID')}
+                            </div>
+                            <div className="text-sm text-gray-500 dark:text-gray-400">Total Alokasi Budget</div>
+                        </div>
+                        <div className="space-y-2">
+                            <div className="flex justify-between">
+                                <span className="text-sm text-gray-600 dark:text-gray-400">Terpakai</span>
+                                <span className="text-sm font-medium text-green-600">Rp {processedData.usedBudget.toLocaleString('id-ID')}</span>
+                            </div>
+                            <div className="flex justify-between">
+                                <span className="text-sm text-gray-600 dark:text-gray-400">Pending</span>
+                                <span className="text-sm font-medium text-orange-600">Rp {processedData.pendingBudget.toLocaleString('id-ID')}</span>
+                            </div>
+                            <div className="flex justify-between">
+                                <span className="text-sm text-gray-600 dark:text-gray-400">Tersedia</span>
+                                <span className="text-sm font-medium text-blue-600">
+                                    Rp {(processedData.totalBudget - processedData.usedBudget - processedData.pendingBudget).toLocaleString('id-ID')}
+                                </span>
+                            </div>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-2 dark:bg-navy-700">
+                            <div
+                                className="bg-green-500 h-2 rounded-full transition-all duration-500"
+                                style={{ width: `${budgetUtilization}%` }}
+                            ></div>
+                        </div>
+                        <div className="text-center text-xs text-gray-500">
+                            {budgetUtilization}% terealisasi
+                        </div>
+                    </div>
+                </Card>                {/* Security & Performance */}
+                <Card extra={"p-4"}>
+                    <div className="flex items-center justify-between mb-4">
+                        <h5 className="text-lg font-bold text-navy-700 dark:text-white flex items-center">
+                            <MdOutlineSecurity className="mr-2 text-red-500" />
+                            Keamanan & Performa
+                        </h5>
+                    </div>
+                    <div className="space-y-4">
+                        <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                            <div className="flex items-center">
+                                <MdOutlineSecurity className="text-green-500 mr-2" />
+                                <span className="text-sm font-medium">Status Keamanan</span>
+                            </div>
+                            <span className="text-xs font-bold text-green-600 bg-green-100 px-2 py-1 rounded-full">
+                                {processedData.securityIncidents === 0 ? 'Aman' : `${processedData.securityIncidents} Masalah`}
+                            </span>
+                        </div>
+                        <div className="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                            <div className="flex items-center">
+                                <MdOutlineSpeed className="text-blue-500 mr-2" />
+                                <span className="text-sm font-medium">Rata-rata Response</span>
+                            </div>
+                            <span className="text-xs font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded-full">
+                                {processedData.avgResponseTime || 250}ms
+                            </span>
+                        </div>
+                        <div className="flex items-center justify-between p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                            <div className="flex items-center">
+                                <MdOutlineAnalytics className="text-purple-500 mr-2" />
+                                <span className="text-sm font-medium">Tingkat Keberhasilan</span>
+                            </div>
+                            <span className="text-xs font-bold text-purple-600 bg-purple-100 px-2 py-1 rounded-full">
+                                {processedData.successRate || 99.2}%
+                            </span>
+                        </div>
+                    </div>
+                </Card>
+            </div>
+
+            {/* Bottom Row: Recent Activity & Quick Actions */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">                {/* Recent Activity */}
+                <Card extra={"p-4"}>
+                    <div className="flex items-center justify-between mb-4">
+                        <h5 className="text-lg font-bold text-navy-700 dark:text-white flex items-center">
+                            <MdOutlineSchedule className="mr-2 text-orange-500" />
+                            Aktivitas Terbaru
+                        </h5>
+                        <button
+                            onClick={() => navigate('/admin/activity-log')}
+                            className="text-sm text-brand-500 hover:text-brand-600 font-medium"
+                        >
+                            Lihat Semua
+                        </button>
+                    </div>
+                    <div className="space-y-3 max-h-48 overflow-y-auto">
+                        {recentActivities.slice(0, 6).map((activity, index) => (
+                            <div key={activity.id || index} className="flex items-start space-x-3 p-2 hover:bg-gray-50 dark:hover:bg-navy-700 rounded-lg">
+                                <div className={`w-2 h-2 rounded-full mt-2 ${activity.type === 'system' ? 'bg-blue-500' :
+                                    activity.type === 'user' ? 'bg-green-500' :
+                                        activity.type === 'proposal' ? 'bg-purple-500' :
+                                            'bg-orange-500'
+                                    }`}></div>
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-medium text-navy-700 dark:text-white truncate">
+                                        {activity.user}
+                                    </p>
+                                    <p className="text-sm text-gray-600 dark:text-gray-400 truncate">
+                                        {activity.action}
+                                    </p>
+                                    <p className="text-xs text-gray-500 dark:text-gray-500">
+                                        {activity.time}
+                                    </p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </Card>                {/* Quick Actions */}
+                <Card extra={"p-4"}>
+                    <div className="flex items-center justify-between mb-4">
+                        <h5 className="text-lg font-bold text-navy-700 dark:text-white">
+                            Aksi Cepat
+                        </h5>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                        {quickActions.map((action, index) => (
+                            <button
+                                key={index}
+                                onClick={action.action}
+                                className="flex flex-col items-center justify-center p-4 rounded-lg border border-gray-200 dark:border-navy-600 hover:bg-gray-50 dark:hover:bg-navy-700 transition-colors duration-200"
+                            >
+                                <div className={`w-10 h-10 rounded-full ${action.color} flex items-center justify-center text-white mb-2`}>
+                                    {action.icon}
+                                </div>
+                                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    {action.label}
+                                </span>
+                            </button>
+                        ))}
+                    </div>
+                    <div className="mt-4 pt-4 border-t border-gray-200 dark:border-navy-600">
+                        <button
+                            onClick={() => navigate('/admin/search')}
+                            className="w-full flex items-center justify-center px-4 py-2 bg-brand-500 text-white rounded-lg hover:bg-brand-600 transition-colors duration-200"
+                        >
+                            <MdOutlineSearch className="mr-2" />
+                            Pencarian Lanjutan
+                        </button>
+                    </div>
+                </Card>
             </div>
         </Card>
     );
 };
 
-const Dashboard = () => {
-    const dispatch = useDispatch();
-    const navigate = useNavigate();
-    const { baseURL } = useSelector((state) => state.auth);
-    const [dashboardData, setDashboardData] = useState({
-        systemHealth: 98,
-        activeUsers: 245,
-        activeSessions: 1,
-        totalProposals: 156,
-        pendingReviews: 23,
-        approvedProposals: 89,
-        rejectedProposals: 44,
-        userActivity: [65, 78, 80, 82, 75, 67, 73, 85, 92, 89, 85, 93]
-    });
-
-    // Add state to track if charts are ready to render
-    const [chartsReady, setChartsReady] = useState(false);
-    const [timeFilter, setTimeFilter] = useState("monthly");
-
-    // Safely initialize chart components with useEffect
-    useEffect(() => {
-        // Using a timeout to ensure DOM is fully loaded
-        const timer = setTimeout(() => {
-            if (typeof LineChart === 'function' && typeof PieChart === 'function') {
-                setChartsReady(true);
-            }
-        }, 500);
-
-        return () => clearTimeout(timer);
-    }, []);
-
-    // Sample chart data with proper structure
-    const lineChartData = {
-        labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-        datasets: [
-            {
-                label: "User Activity",
-                data: dashboardData.userActivity,
-                borderColor: "#4318FF",
-                tension: 0.4,
-                fill: false, // Add this to ensure proper line rendering
-                backgroundColor: 'rgba(67, 24, 255, 0.2)' // Add background color
-            },
-        ],
-    };
-
-    const pieChartData = {
-        labels: ["Approved", "Rejected", "Pending"],
-        datasets: [
-            {
-                data: [dashboardData.approvedProposals, dashboardData.rejectedProposals, dashboardData.pendingReviews],
-                backgroundColor: ["#05CD99", "#EE5D50", "#FFB547"],
-                borderWidth: 0, // Add this to remove borders
-            },
-        ],
-    };
-
-    // Sample urgent notifications
-    const urgentNotifications = [
-        {
-            id: 1,
-            message: "Session #451 is closing in 2 days",
-            time: "2 hours ago",
-            priority: "high",
-        },
-        {
-            id: 2,
-            message: "23 proposals awaiting review",
-            time: "5 hours ago",
-            priority: "medium",
-        },
-        {
-            id: 3,
-            message: "ML Model accuracy dropped below 95%",
-            time: "1 day ago",
-            priority: "medium",
-        },
-        {
-            id: 4,
-            message: "System backup scheduled tonight",
-            time: "2 days ago",
-            priority: "low",
-        },
-    ];
-
-    // Sample system health indicators
-    const systemHealthIndicators = [
-        {
-            name: "Server Uptime",
-            value: "99.9%",
-            status: "optimal",
-        },
-        {
-            name: "Database Load",
-            value: "42%",
-            status: "normal",
-        },
-        {
-            name: "API Response",
-            value: "230ms",
-            status: "normal",
-        },
-        {
-            name: "ML Accuracy",
-            value: "96.8%",
-            status: "good",
-        },
-    ];
-
-    // Improved safe rendering function for charts
-    const renderLineChart = () => {
-        return <FallbackLineChart chartData={lineChartData} />;
-    };
-
-    const renderPieChart = () => {
-        return <FallbackRadialChart chartData={pieChartData} />;
-    };
-
-    return (
-        <>
-            {/* System Overview Card - Full width across top */}
-            <div className="mb-5 w-full">
-                <SystemOverview data={dashboardData} />
-            </div>
-
-            {/* Enhanced modern layout with better space utilization */}
-            <div className="grid grid-cols-12 gap-5">
-                {/* Main content area - 8 columns */}
-                <div className="col-span-12 lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-5">
-                    {/* Active Session - Spans 2 columns on medium+ screens */}
-                    <div className="col-span-1 md:col-span-2">
-                        <Card extra={"p-0 overflow-hidden"}>
-                            <div className="relative">
-                                {/* Modern gradient header with pattern overlay */}
-                                <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-indigo-600 opacity-90 z-0"></div>
-                                <div className="absolute inset-0 bg-pattern-grid opacity-10 z-0"></div>
-
-                                {/* Session header content */}
-                                <div className="relative p-5 z-10">
-                                    <div className="flex justify-between items-start">
-                                        <div>
-                                            <div className="flex items-center space-x-2">
-                                                <span className="flex h-2.5 w-2.5 rounded-full bg-green-400 shadow-glow-green"></span>
-                                                <h4 className="text-xl font-bold text-white">Active Session</h4>
-                                            </div>
-                                            <p className="text-blue-100 text-sm mt-1 font-medium">Session #451 • Proposal Collection Phase</p>
-                                        </div>
-                                        <div className="bg-white/20 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-medium text-white border border-white/30">
-                                            In Progress
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Session details with modern card design */}
-                            <div className="px-5 py-4">
-                                <h5 className="font-bold text-navy-700 dark:text-white text-lg mb-3">Pengadaan Kegiatan Semester Genap 2025</h5>
-
-                                {/* Date timeline component */}
-                                <div className="flex items-center mb-4">
-                                    <div className="flex-1 flex flex-col items-center">
-                                        <span className="text-xs text-gray-500 mb-1">Started</span>
-                                        <span className="text-sm font-medium bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 px-3 py-1 rounded-full">Apr 15</span>
-                                        <div className="mt-2 h-1 w-full bg-blue-100 dark:bg-blue-900/20"></div>
-                                    </div>
-                                    <div className="flex-1 flex flex-col items-center">
-                                        <span className="text-xs text-gray-500 mb-1">Current</span>
-                                        <span className="text-sm font-medium bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400 px-3 py-1 rounded-full">May 23</span>
-                                        <div className="mt-2 h-1 w-full bg-gradient-to-r from-blue-100 via-green-100 to-gray-100 dark:from-blue-900/20 dark:via-green-900/20 dark:to-gray-900/20"></div>
-                                    </div>
-                                    <div className="flex-1 flex flex-col items-center">
-                                        <span className="text-xs text-gray-500 mb-1">Ends</span>
-                                        <span className="text-sm font-medium bg-gray-50 text-gray-700 dark:bg-gray-800 dark:text-gray-400 px-3 py-1 rounded-full">Jun 30</span>
-                                        <div className="mt-2 h-1 w-full bg-gray-100 dark:bg-gray-800"></div>
-                                    </div>
-                                </div>
-
-                                {/* Status indicators */}
-                                <div className="grid grid-cols-3 gap-3 mb-4">
-                                    <div className="flex flex-col items-center justify-center py-3 px-2 rounded-lg bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/20">
-                                        <p className="text-amber-700 dark:text-amber-400 font-bold text-xl">23</p>
-                                        <p className="text-xs text-amber-600 dark:text-amber-500">Days Left</p>
-                                    </div>
-                                    <div className="flex flex-col items-center justify-center py-3 px-2 rounded-lg bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/20">
-                                        <p className="text-blue-700 dark:text-blue-400 font-bold text-xl">45%</p>
-                                        <p className="text-xs text-blue-600 dark:text-blue-500">Complete</p>
-                                    </div>
-                                    <div className="flex flex-col items-center justify-center py-3 px-2 rounded-lg bg-green-50 dark:bg-green-900/10 border border-green-100 dark:border-green-900/20">
-                                        <p className="text-green-700 dark:text-green-400 font-bold text-xl">156</p>
-                                        <p className="text-xs text-green-600 dark:text-green-500">Proposals</p>
-                                    </div>
-                                </div>
-
-                                {/* Progress bar with enhanced design */}
-                                <div className="mb-4">
-                                    <div className="flex justify-between mb-1.5">
-                                        <h6 className="font-semibold text-gray-700 dark:text-gray-300 text-sm">Timeline Progress</h6>
-                                        <span className="text-xs font-medium text-blue-600 dark:text-blue-400">45% Complete</span>
-                                    </div>
-                                    <div className="w-full h-2 bg-gray-100 dark:bg-navy-700 rounded-full overflow-hidden">
-                                        <div className="h-full rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 shadow-glow-blue" style={{ width: '45%' }}></div>
-                                    </div>
-                                </div>
-
-                                <button
-                                    onClick={() => navigate('/admin/session-management')}
-                                    className="w-full flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-brand-500 to-brand-600 py-2.5 text-base font-medium text-white transition duration-200 hover:shadow-lg active:opacity-90">
-                                    <span>Manage Session</span>
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                                    </svg>
-                                </button>
-                            </div>
-                        </Card>
-                    </div>
-
-                    {/* Urgent Notifications - Improved modern design */}
-                    <div className="col-span-1">
-                        <Card extra={"p-4 flex flex-col h-full overflow-hidden"}>
-                            <div className="flex justify-between items-center mb-4">
-                                <div className="flex items-center gap-2">
-                                    <div className="relative">
-                                        <div className="absolute inset-0 rounded-full bg-red-400 blur-sm opacity-50"></div>
-                                        <div className="relative bg-gradient-to-r from-red-500 to-pink-500 text-white p-2 rounded-full">
-                                            <MdOutlineNotificationsActive size={18} />
-                                        </div>
-                                    </div>
-                                    <h4 className="text-lg font-bold text-navy-700 dark:text-white">Urgent Notifications</h4>
-                                </div>
-                                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white text-xs font-bold shadow-glow-red">
-                                    {urgentNotifications.length}
-                                </div>
-                            </div>
-
-                            <div className="flex-1 overflow-y-auto no-scrollbar">
-                                <div className="space-y-3">
-                                    {urgentNotifications.map((notification) => (
-                                        <div
-                                            key={notification.id}
-                                            className={`flex items-start rounded-xl p-3 border ${notification.priority === "high" ? "bg-red-50 border-red-100 dark:bg-red-900/10 dark:border-red-900/20" :
-                                                notification.priority === "medium" ? "bg-amber-50 border-amber-100 dark:bg-amber-900/10 dark:border-amber-900/20" :
-                                                    "bg-blue-50 border-blue-100 dark:bg-blue-900/10 dark:border-blue-900/20"
-                                                } hover:shadow-md transition-all duration-200 cursor-pointer`}
-                                        >
-                                            <div className={`mr-3 rounded-full p-2 ${notification.priority === "high" ? "bg-red-100 text-red-700 dark:bg-red-900/30" :
-                                                notification.priority === "medium" ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30" :
-                                                    "bg-blue-100 text-blue-700 dark:bg-blue-900/30"
-                                                }`}>
-                                                <MdOutlineNotificationsActive size={18} />
-                                            </div>
-                                            <div className="flex-1">
-                                                <p className="text-sm font-medium text-gray-800 dark:text-gray-200">{notification.message}</p>
-                                                <div className="flex items-center gap-2 mt-1">
-                                                    <span className={`px-1.5 py-0.5 text-[10px] font-semibold rounded-full ${notification.priority === "high" ? "bg-red-100 text-red-700 dark:bg-red-900/30" :
-                                                        notification.priority === "medium" ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30" :
-                                                            "bg-blue-100 text-blue-700 dark:bg-blue-900/30"
-                                                        }`}>
-                                                        {notification.priority}
-                                                    </span>
-                                                    <span className="text-xs text-gray-500">{notification.time}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-
-                            <button
-                                onClick={() => navigate('/admin/notification-center')}
-                                className="mt-4 w-full rounded-xl bg-gray-900 dark:bg-white/10 py-2 text-base font-medium text-white dark:text-white transition duration-200 hover:bg-gray-800 dark:hover:bg-white/20 active:bg-gray-700">
-                                View All Notifications
-                            </button>
-                        </Card>
-                    </div>
-
-                    {/* Proposal Statistics with Line Chart */}
-                    <div className="col-span-1">
-                        <Card extra={"p-4 flex flex-col h-full"}>
-                            <div className="flex justify-between items-center mb-3">
-                                <h4 className="text-lg font-bold text-navy-700 dark:text-white">User Activity</h4>
-                                <select
-                                    className="rounded-lg border border-gray-200 bg-white/90 dark:bg-navy-800 dark:border-navy-600 px-2.5 py-1 text-sm font-medium"
-                                    value={timeFilter}
-                                    onChange={(e) => setTimeFilter(e.target.value)}
-                                >
-                                    <option value="daily">Daily</option>
-                                    <option value="weekly">Weekly</option>
-                                    <option value="monthly">Monthly</option>
-                                </select>
-                            </div>
-
-                            <div className="flex-1">
-                                <div className="h-48">
-                                    {renderLineChart()}
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-3 mt-3">
-                                <div className="flex items-center p-3 rounded-xl bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-900/20">
-                                    <div className="p-2 rounded-full bg-indigo-100 dark:bg-indigo-900/30 mr-3">
-                                        <MdPeopleOutline size={20} className="text-indigo-600 dark:text-indigo-400" />
-                                    </div>
-                                    <div>
-                                        <p className="text-2xl font-bold text-navy-700 dark:text-white">{dashboardData.activeUsers}</p>
-                                        <p className="text-xs text-indigo-600 dark:text-indigo-400">Active Users</p>
-                                    </div>
-                                </div>
-                                <div className="flex items-center p-3 rounded-xl bg-green-50 dark:bg-green-900/10 border border-green-100 dark:border-green-900/20">
-                                    <div className="p-2 rounded-full bg-green-100 dark:bg-green-900/30 mr-3">
-                                        <MdTrendingUp size={20} className="text-green-600 dark:text-green-400" />
-                                    </div>
-                                    <div>
-                                        <p className="text-2xl font-bold text-navy-700 dark:text-white">+12.5%</p>
-                                        <p className="text-xs text-green-600 dark:text-green-400">Growth Rate</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </Card>
-                    </div>
-                </div>
-
-                {/* Side panel - 4 columns */}
-                <div className="col-span-12 lg:col-span-4 grid grid-cols-1 gap-5">
-                    {/* Proposal Statistics - Modern pie chart with enhanced design */}
-                    <div>
-                        <Card extra={"p-4 flex flex-col"}>
-                            {/* Enhanced header with better visual hierarchy */}
-                            <div className="flex justify-between items-center mb-3">
-                                <div className="flex items-center gap-2">
-                                    <div className="relative">
-                                        <div className="absolute inset-0 rounded-full bg-indigo-400 blur-sm opacity-50"></div>
-                                        <div className="relative bg-gradient-to-r from-indigo-500 to-violet-500 text-white p-1.5 rounded-full">
-                                            <MdOutlineDescription size={16} />
-                                        </div>
-                                    </div>
-                                    <h4 className="text-lg font-bold text-navy-700 dark:text-white">
-                                        Proposal Statistics
-                                    </h4>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <div className="text-xs font-medium px-2 py-1 rounded-full bg-indigo-50 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400">
-                                        Total: {dashboardData.totalProposals}
-                                    </div>
-                                    <button className="p-1 rounded-full bg-gray-100 dark:bg-navy-700 text-gray-600 hover:bg-gray-200 transition-colors">
-                                        <MdOutlineBarChart size={18} />
-                                    </button>
-                                </div>
-                            </div>
-
-                            {/* Pie chart container with subtle shadow */}
-                            <div className="flex-1 flex items-center justify-center py-2 relative">
-                                <div className="absolute inset-0 flex items-center justify-center opacity-10">
-                                    <div className="w-32 h-32 rounded-full bg-indigo-500 blur-xl"></div>
-                                </div>
-                                {renderPieChart()}
-                            </div>
-
-                            {/* Enhanced statistics cards with improved visual design */}
-                            <div className="grid grid-cols-3 gap-2 mt-2">
-                                {/* Approved Card */}
-                                <div className="rounded-xl bg-white dark:bg-navy-800 shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden border border-gray-100 dark:border-navy-700">
-                                    {/* Status indicator bar */}
-                                    <div className="h-1 w-full bg-green-500"></div>
-                                    <div className="p-2.5">
-                                        <div className="flex items-center gap-1.5 mb-1">
-                                            <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                                            <p className="text-xs text-gray-700 dark:text-gray-300 font-medium">Approved</p>
-                                        </div>
-                                        <div className="flex items-baseline gap-1.5">
-                                            <p className="text-lg font-bold text-green-700 dark:text-green-400">{dashboardData.approvedProposals}</p>
-                                            <span className="text-xs text-green-600 dark:text-green-500 font-medium">
-                                                {Math.round((dashboardData.approvedProposals / dashboardData.totalProposals) * 100)}%
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Rejected Card */}
-                                <div className="rounded-xl bg-white dark:bg-navy-800 shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden border border-gray-100 dark:border-navy-700">
-                                    {/* Status indicator bar */}
-                                    <div className="h-1 w-full bg-red-500"></div>
-                                    <div className="p-2.5">
-                                        <div className="flex items-center gap-1.5 mb-1">
-                                            <div className="w-2 h-2 rounded-full bg-red-500"></div>
-                                            <p className="text-xs text-gray-700 dark:text-gray-300 font-medium">Rejected</p>
-                                        </div>
-                                        <div className="flex items-baseline gap-1.5">
-                                            <p className="text-lg font-bold text-red-700 dark:text-red-400">{dashboardData.rejectedProposals}</p>
-                                            <span className="text-xs text-red-600 dark:text-red-500 font-medium">
-                                                {Math.round((dashboardData.rejectedProposals / dashboardData.totalProposals) * 100)}%
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Pending Card */}
-                                <div className="rounded-xl bg-white dark:bg-navy-800 shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden border border-gray-100 dark:border-navy-700">
-                                    {/* Status indicator bar */}
-                                    <div className="h-1 w-full bg-amber-500"></div>
-                                    <div className="p-2.5">
-                                        <div className="flex items-center gap-1.5 mb-1">
-                                            <div className="w-2 h-2 rounded-full bg-amber-500"></div>
-                                            <p className="text-xs text-gray-700 dark:text-gray-300 font-medium">Pending</p>
-                                        </div>
-                                        <div className="flex items-baseline gap-1.5">
-                                            <p className="text-lg font-bold text-amber-700 dark:text-amber-400">{dashboardData.pendingReviews}</p>
-                                            <span className="text-xs text-amber-600 dark:text-amber-500 font-medium">
-                                                {Math.round((dashboardData.pendingReviews / dashboardData.totalProposals) * 100)}%
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Action button */}
-                            <button
-                                onClick={() => navigate('/admin/proposals')}
-                                className="mt-4 w-full flex items-center justify-center gap-2 rounded-xl bg-gray-100 dark:bg-navy-700 py-2 text-base font-medium text-gray-700 dark:text-white transition duration-200 hover:bg-gray-200 dark:hover:bg-navy-600 active:bg-gray-300">
-                                <span>View All Proposals</span>
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                </svg>
-                            </button>
-                        </Card>
-                    </div>
-
-                    {/* System Health - Enhanced modern design */}
-                    <div>
-                        <Card extra={"p-4 flex flex-col"}>
-                            <div className="flex justify-between items-center mb-4">
-                                <div className="flex items-center gap-2">
-                                    <div className="relative">
-                                        <div className="absolute inset-0 rounded-full bg-green-400 blur-sm opacity-50"></div>
-                                        <div className="relative bg-gradient-to-r from-green-500 to-emerald-500 text-white p-1.5 rounded-full">
-                                            <MdOutlineHealthAndSafety size={16} />
-                                        </div>
-                                    </div>
-                                    <h4 className="text-lg font-bold text-navy-700 dark:text-white">System Health</h4>
-                                </div>
-                                <div className="flex items-center">
-                                    <span className="h-2 w-2 rounded-full bg-green-500 mr-2 shadow-glow-green"></span>
-                                    <span className="text-sm font-medium text-green-600 dark:text-green-400">All Systems Normal</span>
-                                </div>
-                            </div>
-
-                            <div className="space-y-3.5">
-                                {systemHealthIndicators.map((indicator, index) => (
-                                    <div key={index} className={`p-3 rounded-xl border ${indicator.status === "optimal" ? "bg-green-50 border-green-100 dark:bg-green-900/10 dark:border-green-900/20" :
-                                        indicator.status === "good" ? "bg-blue-50 border-blue-100 dark:bg-blue-900/10 dark:border-blue-900/20" :
-                                            indicator.status === "normal" ? "bg-gray-50 border-gray-100 dark:bg-gray-900/10 dark:border-gray-900/20" :
-                                                "bg-red-50 border-red-100 dark:bg-red-900/10 dark:border-red-900/20"
-                                        }`}>
-                                        <div className="flex justify-between items-center">
-                                            <div className="flex items-center">
-                                                <div className={`h-9 w-9 rounded-full flex items-center justify-center mr-3 ${indicator.status === "optimal" ? "bg-green-100 text-green-700 dark:bg-green-900/30" :
-                                                    indicator.status === "good" ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30" :
-                                                        indicator.status === "normal" ? "bg-gray-100 text-gray-700 dark:bg-gray-900/30" :
-                                                            "bg-red-100 text-red-700 dark:bg-red-900/30"
-                                                    }`}>
-                                                    <MdOutlineCloud size={20} />
-                                                </div>
-                                                <div>
-                                                    <p className="text-sm font-medium text-gray-800 dark:text-gray-200">{indicator.name}</p>
-                                                    <div className="flex items-center mt-0.5">
-                                                        <span className={`px-1.5 py-0.5 text-[10px] font-semibold rounded-full ${indicator.status === "optimal" ? "bg-green-100 text-green-700 dark:bg-green-900/30" :
-                                                            indicator.status === "good" ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30" :
-                                                                indicator.status === "normal" ? "bg-gray-100 text-gray-700 dark:bg-gray-900/30" :
-                                                                    "bg-red-100 text-red-700 dark:bg-red-900/30"
-                                                            }`}>
-                                                            {indicator.status}
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <span className={`text-lg font-bold ${indicator.status === "optimal" ? "text-green-600 dark:text-green-400" :
-                                                    indicator.status === "good" ? "text-blue-600 dark:text-blue-400" :
-                                                        indicator.status === "normal" ? "text-gray-700 dark:text-gray-300" :
-                                                            "text-red-600 dark:text-red-400"
-                                                    }`}>
-                                                    {indicator.value}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-
-                            <button
-                                onClick={() => navigate('/admin/system-monitoring')}
-                                className="mt-4 w-full rounded-xl bg-gray-100 dark:bg-navy-700 py-2.5 text-base font-medium text-gray-700 dark:text-white transition duration-200 hover:bg-gray-200 dark:hover:bg-navy-600 active:bg-gray-300 flex items-center justify-center gap-2">
-                                <span>View Detailed Metrics</span>
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                </svg>
-                            </button>
-                        </Card>
-                    </div>
-                </div>
-            </div>
-        </>
-    );
-};
-
-export default Dashboard;
+export default SystemOverview;

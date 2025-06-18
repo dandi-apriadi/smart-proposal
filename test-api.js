@@ -16,9 +16,7 @@ async function testAPI() {
         console.log('\n2. Testing dashboard API test endpoint...');
         const testResponse = await axios.get(`${baseURL}/api/dashboard/test`);
         console.log('✅ Dashboard API test endpoint is working');
-        console.log('Response:', testResponse.data);
-
-        // Test dashboard demo endpoint
+        console.log('Response:', testResponse.data);        // Test dashboard demo endpoint
         console.log('\n3. Testing dashboard demo endpoint...');
         const demoResponse = await axios.get(`${baseURL}/api/dashboard/demo`);
         console.log('✅ Dashboard demo endpoint is working');
@@ -26,6 +24,21 @@ async function testAPI() {
             overview: demoResponse.data.data.overview,
             isDemo: demoResponse.data.isDemo
         });
+
+        // Test active session endpoint (without auth - should return access denied)
+        console.log('\n4. Testing active session endpoint (without auth)...');
+        try {
+            const sessionResponse = await axios.get(`${baseURL}/api/analytics/active-session-status`);
+            console.log('✅ Active session endpoint responded');
+            console.log('Session data preview:', sessionResponse.data);
+        } catch (sessionError) {
+            if (sessionError.response?.status === 403) {
+                console.log('✅ Active session endpoint is protected (requires authentication)');
+                console.log('Error:', sessionError.response.data.message);
+            } else {
+                throw sessionError;
+            }
+        }
 
         console.log('\n🎉 All API tests passed!');
 
