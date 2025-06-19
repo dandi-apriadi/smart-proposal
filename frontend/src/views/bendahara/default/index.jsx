@@ -114,16 +114,15 @@ const BendaharaDashboard = () => {
             approvedDate: "28 Mei 2025",
             priority: "Sedang"
         }
-    ];
-
-    const disbursementSchedule = [
+    ]; const disbursementSchedule = [
         {
             phase: 1,
             name: "Pencairan Dana Tahap I",
             status: "Selesai",
             description: "Pencairan awal untuk semua proposal yang disetujui",
             date: "15 Maret 2025",
-            progress: 100
+            progress: 100,
+            amount: 800000000
         },
         {
             phase: 2,
@@ -131,14 +130,17 @@ const BendaharaDashboard = () => {
             status: "Aktif",
             description: "Pencairan berdasarkan evaluasi laporan kemajuan",
             date: "30 Juni 2025",
-            progress: 65
+            progress: 65,
+            amount: 450000000
         },
         {
             phase: 3,
             name: "Pencairan Dana Tahap III",
             status: "Belum Mulai",
             description: "Pencairan final setelah laporan akhir disetujui",
-            date: "15 Oktober 2025"
+            date: "15 Oktober 2025",
+            progress: 0,
+            amount: 350000000
         }
     ];
 

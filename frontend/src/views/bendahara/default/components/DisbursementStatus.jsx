@@ -36,19 +36,17 @@ const dummyDisbursementSchedule = [
 ];
 
 const DisbursementStatus = ({ disbursementSchedule = dummyDisbursementSchedule }) => {
-    const [activeTab, setActiveTab] = useState('progress');
-
-    // Calculate total amount and amounts by status
-    const totalAmount = disbursementSchedule.reduce((sum, phase) => sum + phase.amount, 0);
+    const [activeTab, setActiveTab] = useState('progress');    // Calculate total amount and amounts by status
+    const totalAmount = disbursementSchedule.reduce((sum, phase) => sum + (phase.amount || 0), 0);
     const disbursedAmount = disbursementSchedule
         .filter(phase => phase.status === 'Selesai')
-        .reduce((sum, phase) => sum + phase.amount, 0);
+        .reduce((sum, phase) => sum + (phase.amount || 0), 0);
     const activeAmount = disbursementSchedule
         .filter(phase => phase.status === 'Aktif')
-        .reduce((sum, phase) => sum + phase.amount, 0);
+        .reduce((sum, phase) => sum + (phase.amount || 0), 0);
     const pendingAmount = disbursementSchedule
         .filter(phase => phase.status === 'Belum Aktif')
-        .reduce((sum, phase) => sum + phase.amount, 0);
+        .reduce((sum, phase) => sum + (phase.amount || 0), 0);
 
     // Chart configurations
     const donutChartOptions = {
@@ -298,13 +296,11 @@ const DisbursementStatus = ({ disbursementSchedule = dummyDisbursementSchedule }
                                     }`}>
                                     {phase.status}
                                 </span>
-                            </div>
-
-                            <div className="flex items-center justify-between mt-3">
+                            </div>                            <div className="flex items-center justify-between mt-3">
                                 <div className="flex items-center">
                                     <MdAttachMoney className="h-4 w-4 text-gray-500 dark:text-gray-400" />
                                     <span className="text-sm font-medium text-gray-700 dark:text-gray-300 ml-1">
-                                        Rp {phase.amount.toLocaleString()}
+                                        Rp {(phase.amount || 0).toLocaleString()}
                                     </span>
                                 </div>
                                 <span className="text-xs text-gray-600 dark:text-gray-400">
